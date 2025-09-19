@@ -1,0 +1,205 @@
+@import '../../../tools/mixins';
+
+.passenger-order__mini-orders {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 12px;
+  padding: 16px;
+  width: 100%;
+  top: 0px;
+  left: 0;
+
+  &.one-order {
+    .taxi-order-card {
+      width: 865px;
+      max-width: calc(100vw - 32px);
+
+      &.with-cancel {
+        width: 865px;
+        max-width: calc(100vw - 32px);
+      }
+    }
+  }
+
+  &.two-orders {
+    .taxi-order-card {
+      width: 432px;
+      max-width: calc((100vw - 32px - 12px) / 2);
+
+      &.with-cancel {
+        width: 432px;
+        max-width: calc((100vw - 32px - 12px) / 2);
+      }
+    }
+  }
+
+  &.three-orders {
+    .taxi-order-card {
+      width: 288px;
+      max-width: calc((100vw - 32px - 24px) / 3);
+
+      &.with-cancel {
+        width: 288px;
+        max-width: calc((100vw - 32px - 24px) / 3);
+      }
+    }
+  }
+
+  &.four-orders {
+    .taxi-order-card {
+      width: 250px;
+      max-width: calc((100vw - 32px - 36px) / 4);
+
+      &.with-cancel {
+        width: 250px;
+        max-width: calc((100vw - 32px - 36px) / 4);
+      }
+    }
+  }
+
+  &.five-plus-orders {
+    .taxi-order-card {
+      width: 130px;
+
+      &.with-cancel {
+        width: 130px;
+      }
+    }
+  }
+
+  /* Скрыть полосы скролла, но сохранить функциональность */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  .taxi-order-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 8px;
+    width: 130px;
+    height: 110px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .order-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+
+      .order-number {
+        color: #333;
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      .order-status {
+        color: #666;
+        font-size: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 35px;
+      }
+    }
+
+    .rating-stars {
+      display: flex;
+      justify-content: center;
+      margin: 1px 0;
+      gap: 1px;
+
+      .star {
+        font-size: 6px;
+
+        &.filled {
+          color: #ffd700;
+        }
+
+        &.empty {
+          color: #ddd;
+        }
+      }
+    }
+
+    .order-info-row {
+      margin: 1px 0;
+
+      .passengers {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        color: #333;
+        font-size: 10px;
+
+        .icon {
+          width: 12px;
+          height: 12px;
+          opacity: 0.7;
+        }
+      }
+
+      .time,
+      .price {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        color: #333;
+        font-size: 6px;
+
+        .icon {
+          width: 10px;
+          height: 10px;
+          opacity: 0.7;
+        }
+      }
+
+      .price {
+        color: #ff4444;
+        font-weight: 600;
+        font-size: 6px;
+      }
+    }
+
+    .cancel-btn {
+      padding: 6px 0;
+      font-size: 8px;
+      border-radius: 0 0 12px 12px;
+      background: #ff4444 !important;
+      border: none;
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin: 0 -8px -8px -8px;
+      width: calc(100% + 16px);
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: #ff3333 !important;
+      }
+    }
+
+    &.with-cancel {
+      height: 140px;
+    }
+  }
+}
