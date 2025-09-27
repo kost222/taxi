@@ -39,8 +39,6 @@ import moment from "moment";
 import {EDriverTabs} from "../../pages/Driver"
 import {calculateFinalPrice, calculateFinalPriceFormula} from "./RatingModal";
 import {setLoginModal} from "../../state/modals/actionCreators";
-
-
 const bookingStates: Record<number, keyof typeof EBookingStates> = {
   1: 'Processing',
   2: 'Approved',
@@ -49,13 +47,11 @@ const bookingStates: Record<number, keyof typeof EBookingStates> = {
   5: 'PendingActivation',
   6: 'OfferedToDrivers'
 }
-
 const paymentWays: Record<number, keyof typeof EPaymentWays> = {
   1: 'Cash',
   2: 'Credit',
   3: 'Paypal'
 }
-
 const mapStateToProps = (state: IRootState) => ({
   // order: orderSelectors.order(state),
   client: orderSelectors.client(state),
@@ -66,7 +62,6 @@ const mapStateToProps = (state: IRootState) => ({
   user: userSelectors.user(state),
   activeChat: modalsSelectors.activeChat(state),
 })
-
 const mapDispatchToProps = {
   getOrder: orderActionCreators.getOrder,
   setOrder: orderActionCreators.setOrder,
@@ -78,14 +73,11 @@ const mapDispatchToProps = {
   setMessageModal: modalsActionCreators.setMessageModal,
   setActiveChat: modalsActionCreators.setActiveChat,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IFormValues {
   votingNumber: number
   performers_price: number
 }
-
 interface IProps extends ConnectedProps<typeof connector> {
   // match: {
   //   params: {
@@ -93,7 +85,6 @@ interface IProps extends ConnectedProps<typeof connector> {
   //   },
   // },
 }
-
 interface CardModalProps extends IProps {
   active: boolean
   avatarSize: string
@@ -104,7 +95,6 @@ interface CardModalProps extends IProps {
   orderId: string
   closeModal: () => void
 }
-
 export function getPricingFormula(order: IOrder | null) {
     if (!order) {
         return 'err';
@@ -112,16 +102,13 @@ export function getPricingFormula(order: IOrder | null) {
     if (!order?.b_options?.pricingModel?.formula) {
         return 'err';
     }
-
     let formula = order.b_options.pricingModel.formula;
     const options = order.b_options.pricingModel.options || {};
-
     // Replace all placeholders in the formula with their values
     Object.entries(options).forEach(([key, value]) => {
         const placeholder = `${key}`;
         formula = formula.replace(new RegExp(placeholder, 'g'), Math.trunc(value)?.toString() || '0');
     });
-
     // Handle parentheses and coefficient formatting
     const timeRatioMatch = formula.match(/\(([^)]+)\)\*(\d+(?:\.\d+)?)/);
     if (timeRatioMatch) {
@@ -131,10 +118,8 @@ export function getPricingFormula(order: IOrder | null) {
             formula = formula.replace(/\(([^)]+)\)\*\d+(?:\.\d+)?/, '$1');
         }
     }
-
     return formula;
 }
-
 const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order, user, orderId, closeModal,
   client,
   loadedAddress,
@@ -151,31 +136,24 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
   setAlarmModal,
   setActiveChat
  }: CardModalProps) => {
-    console.log('CardModal drive status',order?.b_id, order?.b_state,order?.b_state==EBookingStates.Completed)
   const context = useContext(OrderAddressContext);
-
   const [address, setAddress] = useState<IAddressPoint|null>(loadedAddress || null)
   const [destinationAddress, setDestinationAddress] = useState<IAddressPoint|null>(null)
   const [isAddressLoading, setIsAddressLoading] = useState(false)
   const [isDestinationLoading, setIsDestinationLoading] = useState(false)
   const [hasStartAddressRequested, setHasStartAddressRequested] = useState(false)
   const [hasDestinationAddressRequested, setHasDestinationAddressRequested] = useState(false)
-
   const driver = useMemo(() => 
     order?.drivers?.find(item => item.c_state > EBookingDriverState.Canceled),
     [order?.drivers]
   );
-
   const [isFromAddressShort, setIsFromAddressShort] = useState<boolean>((localStorage.getItem('isFromAddressShort')==='true'))
-
   const navigate = useNavigate();
-
   const formatShortAddress = useCallback((addressData: any) => {
     const { road, suburb, city, county, state, country } = addressData.address;
     const parts = [road, suburb, city, county, state, country].filter(Boolean);
     return parts.join(', ');
   }, []);
-
   // Reset request flags when order changes
   useEffect(() => {
     if (order?.b_id) {
@@ -183,10 +161,8 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
       setHasDestinationAddressRequested(false);
     }
   }, [order?.b_id]);
-
   // Fetch start address
   useEffect(() => {
-      console.log('Loading start addres for order', order?.b_id)
     // Запрашиваем только если модал открыт и есть order
     if (!active || !order?.b_id || !order?.b_start_latitude || !order?.b_start_longitude) return;
     // Если уже есть адрес в context или loadedAddress, используем его
@@ -215,7 +191,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
       });
   }, [active, order?.b_id, order?.b_start_latitude, order?.b_start_longitude]);
   useEffect( () => {
-      console.log('Loading NULL start addres for order', order?.b_id)
       const val = {
           latitude: undefined,
           longitude: undefined,
@@ -228,7 +203,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
       setAddress(val)
       setIsAddressLoading(false)
   }, [active, order?.b_id, !order?.b_start_latitude, !order?.b_start_longitude]);
-
   // Fetch destination address
   useEffect(() => {
     if (!active || !order?.b_id || !order?.b_destination_latitude || !order?.b_destination_longitude) return;
@@ -270,7 +244,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
         setIsDestinationLoading(false);
       });
   }, [active, order?.b_id, order?.b_destination_latitude, order?.b_destination_longitude]);
-
     useEffect(() => {
         const val = {
             latitude: undefined,
@@ -284,23 +257,18 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
         setDestinationAddress(val)
         setIsDestinationLoading(false);
     }, [active, order?.b_id, order?.b_destination_latitude, order?.b_destination_longitude]);
-
   const { register, formState: { errors }, handleSubmit: formHandleSubmit, getValues } = useForm<IFormValues>({
     criteriaMode: 'all',
     mode: 'onSubmit',
   })
-
   const dispatch = useDispatch()
-
   useEffect(() => {
     if (active && orderId) {
       dispatch(setSelectedOrderId(orderId))
     }
   }, [active, orderId])
-
   const handleSubmit = () => {
     const isCandidate = ['96', '95'].some(item => order?.b_comments?.includes(item))
-
     API.takeOrder(orderId, { ...getValues() }, isCandidate)
       .then(() => {
         getOrder(orderId)
@@ -311,32 +279,25 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
         })
       })
       .catch(error => {
-        console.error(error)
         setMessageModal({ isOpen: true, message: error || t(TRANSLATION.ERROR), status: EStatuses.Fail })
       })
   }
-
   const onArrivedClick = () =>
     API.setOrderState(orderId, EBookingDriverState.Arrived)
       .then(() => getOrder(orderId))
       .catch(error => {
-        console.error(error)
         setMessageModal({ isOpen: true, message: t(TRANSLATION.ERROR), status: EStatuses.Fail })
       })
-
     const onHideOrder = () => {
       addHiddenOrder(orderId, user?.u_id)
-      //@ts-ignore
-      history.push('/driver-order')
+      navigate('/driver-order')
     }
-
     const onStartedClick = () =>
       API.setOrderState(orderId, EBookingDriverState.Started)
         .then(() => {
           getOrder(orderId)
           navigate('/driver-order?tab=map')
         })
-  
     const onCompleteOrderClick = () =>
       API.setOrderState(orderId, EBookingDriverState.Finished)
         .then(() => {
@@ -345,16 +306,12 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
           setRatingModal({ isOpen: true })
         })
         .catch(error => {
-          console.error(error)
           setMessageModal({ isOpen: true, status: EStatuses.Fail, message: t(TRANSLATION.ERROR) })
         })
-    
     const onAlarmClick = () =>
       setAlarmModal({ isOpen: true })
-
     const onRateOrderClick = () =>
       setRatingModal({ isOpen: true })
-
     const openChatModal = () => {
       // Если клиент на сайте, используем стандартный чат
       if (!order?.b_options?.createdBy) {
@@ -364,10 +321,8 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
         setActiveChat(activeChat === chatID ? null : chatID)
         return
       }
-
       // Ищем профиль клиента
       if (!order.user) return;
-
       // В зависимости от типа контакта формируем соответствующую ссылку
       switch (order.b_options.createdBy) {
         case 'sms':
@@ -385,7 +340,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
           setActiveChat(activeChat === chatID ? null : chatID)
       }
     }
-
     const getButtons = () => {
       if (!order) return (
         <Button
@@ -396,7 +350,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
           status={status}
         />
       )
-      
       if (driver?.c_state === EBookingDriverState.Finished && driver?.c_rating) return (
         <Button
           text={t(TRANSLATION.EXIT)}
@@ -405,7 +358,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
           label={message}
           status={status}
         />)
-      
         if (!driver) return <>
         {order?.b_voting && (
           <Input
@@ -446,7 +398,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
           />
         </>)}
       </>
-
       if (order.b_state === EBookingStates.Canceled) return (
         <Button
           text={t(TRANSLATION.EXIT_USER_CANCELLED)}
@@ -533,37 +484,31 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
         />
       </>
     }
-
   const outsideClick = ( e: React.MouseEvent<HTMLDivElement, MouseEvent> ) => {
     if ( e.currentTarget === e.target ) {
       closeModal()
     }
   }
-
   const shortAddressHandler = () => {
     setIsFromAddressShort(prev => {
       localStorage.setItem('isFromAddressShort', ''+!prev)
       return !prev
     })
   }
-
   const getStatusText = () => {
     if (order?.b_voting) return t(TRANSLATION.VOTER)
     return ''
   }
-
   const getStatusTextColor = () => {
     if (order?.b_voting) return '#FF2400'
     // 'reccomended': return '#00A72F'\
     return 'rgba(0, 0, 0, 0.25)'
   }
     const price = calculateFinalPrice(order)
-
     const _type = order?.b_payment_way === EPaymentWays.Credit ? TRANSLATION.CARD : TRANSLATION.CASH
     const _value = (order && order.b_options && order.b_options.customer_price) ?
       t(_type) + '. ' + t(TRANSLATION.WHAT_WE_DELIVERING) + ` ${order.b_options.customer_price} ${CURRENCY.SIGN}` :
       t(_type) + '. ' + t(TRANSLATION.FIXED) + `${price ? CURRENCY.SIGN : ''}${(price || '-') || getPayment(order).text }`
-
   return (
     <div className={cn(
       'status-card__modal',
@@ -574,7 +519,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
       }[order.profitRank]}`
     )} data-active={active} onClick={outsideClick} >
       <div>
-        
         <div className='top' >
           <div
             className="avatar"
@@ -597,7 +541,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
           </div>
           <b style={{ color: getStatusTextColor() }}>№{order?.b_id} {getStatusText()}</b>
         </div>
-
         <div className='address' >
           <b>Estimate time: {(Math.trunc(order?.b_options?.pricingModel?.options?.duration) || 0)} min</b>
           <p>
@@ -659,14 +602,12 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
             </span>
           </p>
         </div>
-
         <div className="time" >
           <svg width="18" height="19" viewBox="0 0 18 19" fill="none" ><path d="M9 16.25C12.7279 16.25 15.75 13.2279 15.75 9.5C15.75 5.77208 12.7279 2.75 9 2.75C5.27208 2.75 2.25 5.77208 2.25 9.5C2.25 13.2279 5.27208 16.25 9 16.25Z" stroke="#FF2400" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round"/><path d="M8.80884 6.50001V10.25H12.5588" stroke="#FF2400" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round"/></svg>
           <p>{t(TRANSLATION.START_TIME)}: <span>{order?.b_start_datetime?.format(
               order.b_options?.time_is_not_important ? dateFormatDate : dateShowFormat,
             )}</span></p>
         </div>
-
         <div className="payment" >
           <svg width="18" height="19" viewBox="0 0 18 19" fill="none" ><circle cx="8.99988" cy="9.50002" r="7.5" stroke="#FF2400" strokeWidth="1.125"/><path d="M9 13.25V13.625V14" stroke="#FF2400" strokeWidth="1.125" strokeLinecap="round"/><path d="M9 5V5.375V5.75" stroke="#FF2400" strokeWidth="1.125" strokeLinecap="round"/><path d="M11.25 7.62498C11.25 6.58945 10.2426 5.74998 9 5.74998C7.75736 5.74998 6.75 6.58945 6.75 7.62498C6.75 8.66052 7.75736 9.49998 9 9.49998C10.2426 9.49998 11.25 10.3395 11.25 11.375C11.25 12.4105 10.2426 13.25 9 13.25C7.75736 13.25 6.75 12.4105 6.75 11.375" stroke="#FF2400" strokeWidth="1.125" strokeLinecap="round"/></svg>
           <div>
@@ -683,7 +624,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
             }
           </div>
         </div>
-
         <div className="client" >
           <div className="comments" data-active={false} onClick={e => e.currentTarget.dataset.active=e.currentTarget.dataset.active==='false'?'true':'false'} >
             {order?.u_id &&
@@ -692,7 +632,6 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
               ))
             }
           </div>
-          
           {
             !(order?.b_comments?.includes('97') || order?.b_comments?.includes('98')) &&
               <span className='status-card__seats'>
@@ -700,17 +639,14 @@ const CardModal: React.FC<CardModalProps> = ({ active, avatarSize, avatar, order
                 <label>{getOrderCount(order as any)}</label>
               </span>
           }
-
           <form onSubmit={formHandleSubmit(handleSubmit)} >
             <div className="btns" >
               {getButtons()}
             </div>
           </form>
         </div>
-
       </div>
     </div>
   )
 }
-
 export default connector(CardModal)

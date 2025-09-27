@@ -5,6 +5,7 @@ import { t, TRANSLATION } from '../../../localization'
 import { IRootState } from '../../../state'
 import { userSelectors } from '../../../state/user'
 import { EBookingDriverState, IOrder } from '../../../types/types'
+import OrderField from './OrderField'
 
 interface IProps extends ConnectedProps<typeof connector> {
   order: IOrder,
@@ -16,7 +17,6 @@ const mapStateToProps = (state: IRootState) => ({
 
 const connector = connect(mapStateToProps)
 
-// TODO use OrderField
 const OrderPhone: React.FC<IProps> = ({ user, order }) => {
   if (
     !order.b_contact ||
@@ -26,16 +26,18 @@ const OrderPhone: React.FC<IProps> = ({ user, order }) => {
     )
   ) return null
 
-  return <div className="order-info__phone">
-    <div className="order-fields">
-      <img src={images.phone} alt={t(TRANSLATION.PHONE)}/>
-      <label className="colored">
-        <span className="order-fields__title">{t(TRANSLATION.CLIENT_TEL_MAIN)}:</span>
-        <a className="phone-link" href={`tel:${order['b_contact']}`}>{order['b_contact']}</a>
-      </label>
-    </div>
-    <div className="order__separator"/>
-  </div>
+  return (
+    <OrderField
+      image={images.phone}
+      alt={t(TRANSLATION.PHONE)}
+      title={t(TRANSLATION.CLIENT_TEL_MAIN)}
+      value={
+        <a className="phone-link" href={`tel:${order.b_contact}`}>
+          {order.b_contact}
+        </a>
+      }
+    />
+  )
 }
 
 export default connector(OrderPhone)

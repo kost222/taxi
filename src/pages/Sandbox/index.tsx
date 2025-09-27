@@ -7,7 +7,7 @@ import { saveAs } from 'file-saver'
 import JSONEditor from 'jsoneditor'
 import './styles.sass'
 import { useForm, useWatch } from 'react-hook-form'
-
+import { showError } from '../../utils/notifications'
 const Sandbox = () => {
   const [settings, setSettings] = useState<{[key: string]: any}>(
     {
@@ -16,11 +16,9 @@ const Sandbox = () => {
   )
   const [contentKey, setContentKey] = useState(Date.now())
   const editor = useRef<JSONEditor>(null)
-
   const updateFrameKey = () => {
     setContentKey(Date.now())
   }
-
   useEffect(() => {
     const onChange = _.debounce(() => {
       try {
@@ -30,7 +28,6 @@ const Sandbox = () => {
         }
         updateFrameKey()
       } catch (error) {
-        console.error(error)
       }
     }, 700)
     editor.current = new JSONEditor(
@@ -45,7 +42,6 @@ const Sandbox = () => {
     editor.current.set(defaultSettings)
     setSettings(defaultSettings)
   }, [])
-
   const openFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.length && e.target.files[0]
     if (file) {
@@ -55,11 +51,10 @@ const Sandbox = () => {
         event.target && typeof event.target.result === 'string' && setSettings(JSON.parse(event.target.result))
       }
       reader.onerror = () => {
-        window.alert('Ошибка при чтении файла')
+        showError('Ошибка при чтении файла')
       }
     }
   }
-
   const saveFile = () => {
     saveAs(
       new Blob([JSON.stringify(settings)], {
@@ -68,18 +63,15 @@ const Sandbox = () => {
       'data.json',
     )
   }
-
   const form = useForm(settings.formConfg || {
     criteriaMode: 'all',
     mode: 'onChange',
   })
-
   const values = useWatch(
     {
       control: form.control,
     },
   )
-
   return (
     <>
       <div className="columns">
@@ -138,7 +130,7 @@ const Sandbox = () => {
             key={contentKey}
             style={{ position: 'relative', minHeight: '100vh' }}
           >
-            <form onSubmit={() => console.log('submit')}>
+            <form onSubmit={(e) => e.preventDefault()}>
               <ConstructorTab
                 form={form}
                 values={values}
@@ -151,5 +143,4 @@ const Sandbox = () => {
     </>
   )
 }
-
 export default Sandbox

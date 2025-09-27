@@ -11,28 +11,23 @@ import { EStatuses, EUserRoles, IUser } from './types/types'
 import { userSelectors } from './state/user'
 import Sandbox from './pages/Sandbox'
 import PageSection from './components/PageSection'
-
 const PassengerOrder = lazy(() => import('./pages/Passenger'))
 const Order = lazy(() => import('./pages/Order'))
 const DriverOrder = lazy(() => import('./pages/Driver'))
-
 const mapStateToProps = (state: IRootState) => ({
   status: configSelectors.status(state),
   user: userSelectors.user(state),
 })
-
 const connector = connect(mapStateToProps)
-
 interface IProps extends ConnectedProps<typeof connector> {
-
 }
-
 const AppRoutesWrapper: React.FC<IProps> = ({ status, user }) => {
-  return status === EStatuses.Success ?
+  // Temporarily show the app always to debug
+  // Allow app to load even if status is not Success (for debugging)
+  return status !== EStatuses.Fail ?
     <Suspense fallback={null}><AppRoutes user={user}/></Suspense> :
     <UnavailableBase/>
 }
-
 const UnavailableBase = () => {
   return <PageSection>
     <div className="loading-frame">
@@ -41,7 +36,6 @@ const UnavailableBase = () => {
     </div>
   </PageSection>
 }
-
 const HomePageRedirect = () => {
   const navigate = useNavigate()
   useEffect(() => {
@@ -50,7 +44,6 @@ const HomePageRedirect = () => {
     }, 11000)
     return () => clearTimeout(timer)
   }, [])
-
   return (
     <div
       style={{
@@ -82,7 +75,6 @@ const HomePageRedirect = () => {
     </div>
   )
 }
-
 const AppRoutes: React.FC<{user: IUser | null}> = ({ user }) => (
   <>
     <Routes>
@@ -108,5 +100,4 @@ const AppRoutes: React.FC<{user: IUser | null}> = ({ user }) => (
     </Routes>
   </>
 )
-
 export default connector(AppRoutesWrapper)

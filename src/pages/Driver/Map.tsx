@@ -27,21 +27,17 @@ import { createPortal } from 'react-dom'
 import { connect, ConnectedProps } from 'react-redux'
 import { modalsActionCreators } from '../../state/modals'
 import { orderActionCreators } from '../../state/order'
-
 interface IProps {
   user: IUser,
   activeOrders: IOrder[] | null,
   readyOrders: IOrder[] | null,
 }
-
 const mapDispatchToProps = {
   setRatingModal: modalsActionCreators.setRatingModal,
   setMessageModal: modalsActionCreators.setMessageModal,
   getOrder: orderActionCreators.getOrder,
 }
-
 const connector = connect(null, mapDispatchToProps)
-
 interface IContentProps extends IProps {
   locate: boolean,
   setZoom: (zoom: number) => void
@@ -50,9 +46,7 @@ interface IContentProps extends IProps {
   setMessageModal: typeof modalsActionCreators.setMessageModal
   getOrder: typeof orderActionCreators.getOrder
 }
-
 const cachedDriverMapStateKey = 'cachedDriverMapState'
-
 const DriverOrderMapMode: React.FC<IProps & ConnectedProps<typeof connector>> = props => {
   const [position, setPosition] = useCachedState<L.LatLngExpression | undefined>(
     `${cachedDriverMapStateKey}.position`,
@@ -61,7 +55,6 @@ const DriverOrderMapMode: React.FC<IProps & ConnectedProps<typeof connector>> = 
     `${cachedDriverMapStateKey}.zoom`,
     15,
   )
-
   return (
     <PageSection className="driver-order-map-mode">
       <MapContainer
@@ -79,7 +72,6 @@ const DriverOrderMapMode: React.FC<IProps & ConnectedProps<typeof connector>> = 
     </PageSection>
   )
 }
-
 const DriverOrderMapModeContent: React.FC<IContentProps> = ({
   user,
   activeOrders,
@@ -91,16 +83,12 @@ const DriverOrderMapModeContent: React.FC<IContentProps> = ({
   setMessageModal,
   getOrder,
 }) => {
-
   const context = useContext(OrderAddressContext);
-
   const [activeModal, setActiveModal] = useState(false)
   const [choosedOrder, setChoosedOrder] = useState<IOrder|null>(null)
   const [address, setAddress] = useState<IAddressPoint|null>(null)
-
   const navigate = useNavigate()
   const map = useMap()
-
   const [lastPositions, setLastPositions] = useState<[number, number][]>([])
   const [arrowIcon, setArrowIcon] = useState(new L.DivIcon({
     iconAnchor: [20, 40],
@@ -110,7 +98,6 @@ const DriverOrderMapModeContent: React.FC<IContentProps> = ({
     shadowAnchor: [7, 40],
     html: `<img src='${images.mapArrow}'>`,
   }))
-
   useEffect(() => {
     if (map) {
       map.once('locationfound', (e: L.LocationEvent) => {
@@ -118,17 +105,17 @@ const DriverOrderMapModeContent: React.FC<IContentProps> = ({
         if (locate)
           map.setView(e.latlng)
       })
-      map.once('locationerror', (e: L.ErrorEvent) => console.error(e.message))
+      map.once('locationerror', (e: L.ErrorEvent) => {
+        console.error('Location error:', e)
+      })
       map.locate({
         timeout: Infinity,
         enableHighAccuracy: true,
       })
-
       map.on(
         'click',
         (e: L.LeafletMouseEvent) => {
           if (!(e.originalEvent?.target as HTMLDivElement)?.classList?.contains('map')) return
-
           if (user && window.confirm(`${t(TRANSLATION.CONFIRM_LOCATION)}?`)) {
             API.notifyPosition({ latitude: e.latlng.lat, longitude: e.latlng.lng })
           }
@@ -146,7 +133,6 @@ const DriverOrderMapModeContent: React.FC<IContentProps> = ({
       )
     }
   }, [map])
-
   useInterval(() => {
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
@@ -180,26 +166,22 @@ const DriverOrderMapModeContent: React.FC<IContentProps> = ({
           return [[coords.latitude, coords.longitude]] as typeof prev
         })
       },
-      error => console.error(error),
+      error => console.error('Geolocation error:', error),
       { enableHighAccuracy: true },
     )
   }, 2000)
-
   const performingOrder = activeOrders
     ?.find(item => ([
       EBookingDriverState.Performer, EBookingDriverState.Arrived
     ] as any[]).includes(
       item.drivers?.find(item => item.u_id === user?.u_id)?.c_state)
     )
-
   const currentOrder = activeOrders
     ?.find(item =>
       item.drivers?.find(item => item.u_id === user?.u_id)?.c_state === EBookingDriverState.Started,
     )
-
   const onCompleteOrderClick = () => {
     if (!currentOrder) return
-
     API.setOrderState(currentOrder.b_id, EBookingDriverState.Finished)
       .then(() => {
         getOrder(currentOrder.b_id)
@@ -207,14 +189,11 @@ const DriverOrderMapModeContent: React.FC<IContentProps> = ({
         setRatingModal({ isOpen: true })
       })
       .catch(error => {
-        console.error(error)
         setMessageModal({ isOpen: true, status: EStatuses.Fail, message: t(TRANSLATION.ERROR) })
       })
   }
-
   let avatar = images.avatar
   let avatarSize = '48px'
-
   return (
     <>
       <TileLayer
@@ -248,7 +227,6 @@ const DriverOrderMapModeContent: React.FC<IContentProps> = ({
               longitude: item.b_destination_longitude,
             },
             )
-
             return (
               <Marker
                 position={[item.b_start_latitude, item.b_start_longitude] as L.LatLngExpression}
@@ -379,5 +357,4 @@ const DriverOrderMapModeContent: React.FC<IContentProps> = ({
     </>
   )
 }
-
 export default connector(DriverOrderMapMode)

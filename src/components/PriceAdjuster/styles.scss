@@ -1,0 +1,478 @@
+@import '../../styles/taxi-theme';
+
+.price-adjuster {
+  @include taxi-card;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-dark-primary;
+
+      .light-theme & {
+        color: $text-light-primary;
+      }
+    }
+
+    .auction-toggle {
+      padding: 8px 16px;
+      background: $bg-dark-input;
+      border: none;
+      border-radius: 20px;
+      color: $text-dark-primary;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      &:hover {
+        background: lighten($bg-dark-input, 10%);
+      }
+
+      .light-theme & {
+        background: $bg-light-input;
+        color: $text-light-primary;
+
+        &:hover {
+          background: darken($bg-light-input, 10%);
+        }
+      }
+    }
+  }
+
+  &__base {
+    background: $bg-dark-input;
+    padding: 15px;
+    border-radius: $radius-input;
+    margin-bottom: 20px;
+
+    .light-theme & {
+      background: $bg-light-input;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: $text-dark-secondary;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      .light-theme & {
+        color: $text-light-secondary;
+      }
+    }
+
+    .price-display {
+      display: flex;
+      align-items: baseline;
+      font-size: 28px;
+      font-weight: 700;
+      color: $text-dark-primary;
+
+      .light-theme & {
+        color: $text-light-primary;
+      }
+
+      .currency {
+        font-size: 20px;
+        margin-right: 5px;
+        color: $text-dark-secondary;
+
+        .light-theme & {
+          color: $text-light-secondary;
+        }
+      }
+    }
+  }
+
+  &__controls {
+    .price-input-group {
+      margin-bottom: 25px;
+
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 10px;
+        color: $text-dark-primary;
+
+        .light-theme & {
+          color: $text-light-primary;
+        }
+      }
+
+      .price-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .price-input {
+          @include taxi-input;
+          font-size: 18px;
+          font-weight: 500;
+          text-align: center;
+          padding-right: 40px;
+        }
+
+        .currency-suffix {
+          position: absolute;
+          right: 15px;
+          font-size: 16px;
+          color: $text-dark-secondary;
+
+          .light-theme & {
+            color: $text-light-secondary;
+          }
+        }
+      }
+
+      .price-range {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        font-size: 12px;
+
+        .min {
+          color: $color-success;
+        }
+
+        .max {
+          color: $color-error;
+        }
+      }
+    }
+
+    .percentage-adjuster {
+      margin-bottom: 25px;
+
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 10px;
+        color: $text-dark-primary;
+
+        .light-theme & {
+          color: $text-light-primary;
+        }
+      }
+
+      .percentage-slider {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+
+        .slider {
+          flex: 1;
+          height: 8px;
+          border-radius: 4px;
+          outline: none;
+          -webkit-appearance: none;
+          background: linear-gradient(to right, $color-success 0%, $bg-dark-input 50%, $color-error 100%);
+
+          &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: $color-primary;
+            cursor: pointer;
+            box-shadow: $shadow-button;
+          }
+
+          &::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: $color-primary;
+            cursor: pointer;
+            box-shadow: $shadow-button;
+          }
+
+          .light-theme & {
+            background: linear-gradient(to right, $color-success 0%, $bg-light-input 50%, $color-error 100%);
+          }
+        }
+
+        .percentage-value {
+          min-width: 60px;
+          text-align: center;
+          font-size: 18px;
+          font-weight: 600;
+          color: $text-dark-primary;
+
+          .light-theme & {
+            color: $text-light-primary;
+          }
+        }
+      }
+
+      .quick-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        .quick-btn {
+          flex: 1;
+          min-width: 60px;
+          padding: 10px 12px;
+          border: 1px solid $border-dark;
+          border-radius: $radius-button;
+          background: $bg-dark-input;
+          color: $text-dark-primary;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            background: lighten($bg-dark-input, 10%);
+            transform: translateY(-1px);
+          }
+
+          &.negative {
+            color: $color-success;
+            border-color: $color-success;
+
+            &:hover {
+              background: rgba($color-success, 0.1);
+            }
+          }
+
+          &.neutral {
+            color: $text-dark-secondary;
+          }
+
+          &.positive {
+            color: $color-error;
+            border-color: $color-error;
+
+            &:hover {
+              background: rgba($color-error, 0.1);
+            }
+          }
+
+          .light-theme & {
+            background: $bg-light-input;
+            color: $text-light-primary;
+            border-color: $border-light;
+
+            &:hover {
+              background: darken($bg-light-input, 10%);
+            }
+          }
+        }
+      }
+    }
+
+    .pickup-fee {
+      margin-bottom: 20px;
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 10px;
+        color: $text-dark-primary;
+
+        .light-theme & {
+          color: $text-light-primary;
+        }
+
+        .optional {
+          font-size: 11px;
+          color: $text-dark-tertiary;
+          background: $bg-dark-input;
+          padding: 2px 8px;
+          border-radius: 10px;
+
+          .light-theme & {
+            background: $bg-light-input;
+            color: $text-light-tertiary;
+          }
+        }
+      }
+
+      .fee-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .fee-input {
+          @include taxi-input;
+          padding-right: 40px;
+        }
+
+        .currency-suffix {
+          position: absolute;
+          right: 15px;
+          font-size: 14px;
+          color: $text-dark-secondary;
+
+          .light-theme & {
+            color: $text-light-secondary;
+          }
+        }
+      }
+
+      .fee-hint {
+        margin-top: 8px;
+        font-size: 12px;
+        color: $text-dark-tertiary;
+
+        .light-theme & {
+          color: $text-light-tertiary;
+        }
+      }
+    }
+  }
+
+  .auction-details {
+    background: rgba($color-warning, 0.1);
+    border: 1px solid $color-warning;
+    border-radius: $radius-input;
+    padding: 15px;
+    margin: 20px 0;
+
+    h4 {
+      margin: 0 0 15px 0;
+      font-size: 16px;
+      color: $text-dark-primary;
+
+      .light-theme & {
+        color: $text-light-primary;
+      }
+    }
+
+    .auction-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+
+      .stat {
+        text-align: center;
+        padding: 10px;
+        background: $bg-dark-card;
+        border-radius: $radius-input;
+
+        .light-theme & {
+          background: $bg-light-card;
+        }
+
+        .stat-label {
+          display: block;
+          font-size: 11px;
+          color: $text-dark-secondary;
+          margin-bottom: 5px;
+          text-transform: uppercase;
+
+          .light-theme & {
+            color: $text-light-secondary;
+          }
+        }
+
+        .stat-value {
+          display: block;
+          font-size: 18px;
+          font-weight: 600;
+          color: $text-dark-primary;
+
+          .light-theme & {
+            color: $text-light-primary;
+          }
+        }
+      }
+    }
+
+    .auction-hint {
+      padding: 10px;
+      border-radius: $radius-input;
+      font-size: 13px;
+      text-align: center;
+
+      &.competitive {
+        background: rgba($color-success, 0.1);
+        color: $color-success;
+        border: 1px solid $color-success;
+      }
+
+      &.warning {
+        background: rgba($color-error, 0.1);
+        color: $color-error;
+        border: 1px solid $color-error;
+      }
+    }
+  }
+
+  &__summary {
+    border-top: 2px solid $border-dark;
+    padding-top: 20px;
+    margin-top: 20px;
+
+    .light-theme & {
+      border-color: $border-light;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+
+      .label {
+        font-size: 16px;
+        color: $text-dark-secondary;
+
+        .light-theme & {
+          color: $text-light-secondary;
+        }
+      }
+
+      .value {
+        font-size: 24px;
+        font-weight: 700;
+
+        &.total {
+          color: $color-primary;
+        }
+      }
+    }
+
+    .summary-breakdown {
+      background: $bg-dark-input;
+      padding: 10px 15px;
+      border-radius: $radius-input;
+      margin-top: 10px;
+
+      .light-theme & {
+        background: $bg-light-input;
+      }
+
+      .breakdown-item {
+        font-size: 13px;
+        color: $text-dark-secondary;
+        margin: 5px 0;
+
+        .light-theme & {
+          color: $text-light-secondary;
+        }
+
+        span {
+          display: flex;
+          justify-content: space-between;
+        }
+      }
+    }
+  }
+}

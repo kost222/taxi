@@ -11,8 +11,6 @@ import { EOrderTypes, IOrder, EBookingStates } from '../../types/types'
 import { select, call } from '../../tools/sagaUtils'
 import moment from 'moment'
 import { calculateFinalPrice } from '../../components/modals/RatingModal'
-
-
 // Helper function to update duration and price for completed orders
 const updateCompletedOrdersDuration = (orders: IOrder[]) => {
   return orders.map(order => {
@@ -27,7 +25,6 @@ const updateCompletedOrdersDuration = (orders: IOrder[]) => {
     return order
   })
 }
-
 export const saga = function* () {
   yield all([
     takeEvery(ActionTypes.GET_ACTIVE_ORDERS_REQUEST, getActiveOrdersSaga),
@@ -35,7 +32,6 @@ export const saga = function* () {
     takeEvery(ActionTypes.GET_HISTORY_ORDERS_REQUEST, getHistoryOrdersSaga),
   ])
 }
-
 function* getActiveOrdersSaga({ payload: { estimate } }: TAction) {
   try {
     const orders = yield* getOrdersSaga(EOrderTypes.Active)
@@ -58,11 +54,9 @@ function* getActiveOrdersSaga({ payload: { estimate } }: TAction) {
       })
     }
   } catch (error) {
-    console.error(error)
     yield put({ type: ActionTypes.GET_ACTIVE_ORDERS_FAIL, payload: error })
   }
 }
-
 function* getReadyOrdersSaga({ payload: { estimate } }: TAction) {
   try {
     const orders = yield* getOrdersSaga(EOrderTypes.Ready)
@@ -83,11 +77,9 @@ function* getReadyOrdersSaga({ payload: { estimate } }: TAction) {
       })
     }
   } catch (error) {
-    console.error(error)
     yield put({ type: ActionTypes.GET_READY_ORDERS_FAIL, payload: error })
   }
 }
-
 function* getHistoryOrdersSaga({ payload: { estimate } }: TAction) {
   try {
     const orders = yield* getOrdersSaga(EOrderTypes.History)
@@ -108,21 +100,17 @@ function* getHistoryOrdersSaga({ payload: { estimate } }: TAction) {
       })
     }
   } catch (error) {
-    console.error(error)
     yield put({ type: ActionTypes.GET_HISTORY_ORDERS_FAIL, payload: error })
   }
 }
-
 function* getOrdersSaga(
   orderType: EOrderTypes,
 ): Generator<any, IOrder[], any> {
   const userID = (yield* select<ReturnType<typeof user>>(user))?.u_id
   if (!userID) throw new Error()
-
   const _orders = yield* call<IOrder[]>(API.getOrders, orderType)
   return updateCompletedOrdersDuration(_orders)
 }
-
 function* getOrdersTakerGeolocationSaga(
   orders: IOrder[],
 ): Generator<any, [lat: number, lng: number] | undefined, any> {
@@ -130,7 +118,6 @@ function* getOrdersTakerGeolocationSaga(
     const position = yield* call<GeolocationPosition>(getCurrentPosition)
     const { latitude, longitude } = position.coords
     const geolocation: [number, number] = [latitude, longitude]
-
     yield put(getAreasBetweenPoints([
       ...orders
         .flatMap(order => [
@@ -141,7 +128,6 @@ function* getOrdersTakerGeolocationSaga(
       geolocation,
     ]))
     yield put(getCar())
-
     return geolocation
   }
 }

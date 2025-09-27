@@ -1,6 +1,7 @@
 import { userSelectors } from '../state/user'
 import { ParametersExceptFirst } from '../types'
 import state from '../state'
+import { logger } from '../utils/logger'
 
 export interface IApiMethodArguments {
   token: string,
@@ -25,7 +26,7 @@ export const apiMethod = <T extends (...args: any[]) => any>(
     if (authRequired) {
       tokens = userSelectors.tokens(state.getState())
       if (!tokens) {
-        console.error('Auth failed for API call')
+        logger.error('Auth failed for API call')
         return Promise.reject(new Error('Unauthorized user')) as ReturnType<T>
       }
 

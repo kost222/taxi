@@ -1,0 +1,301 @@
+@import '../../styles/design-system';
+
+.cargo-selector {
+  background: $bg-primary;
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  box-shadow: $shadow-md;
+
+  &__title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    margin-bottom: $spacing-lg;
+    color: $text-primary;
+  }
+
+  .cargo-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+
+    .category-btn {
+      padding: $spacing-md;
+      background: $bg-secondary;
+      border: 2px solid transparent;
+      border-radius: $radius-lg;
+      cursor: pointer;
+      transition: $transition-base;
+      text-align: left;
+
+      &:hover {
+        background: $bg-tertiary;
+        transform: translateY(-2px);
+        box-shadow: $shadow-sm;
+      }
+
+      &--active {
+        border-color: $primary-red;
+        background: $primary-red-bg;
+      }
+
+      .category-name {
+        display: block;
+        font-size: $font-size-base;
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+        margin-bottom: $spacing-xs;
+      }
+
+      .category-desc {
+        display: block;
+        font-size: $font-size-sm;
+        color: $text-secondary;
+      }
+    }
+  }
+
+  .cargo-types {
+    margin-bottom: $spacing-lg;
+
+    h4 {
+      font-size: $font-size-lg;
+      margin-bottom: $spacing-md;
+      color: $text-primary;
+    }
+
+    .types-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: $spacing-md;
+
+      .cargo-card {
+        padding: $spacing-md;
+        background: $bg-primary;
+        border: 2px solid $border-light;
+        border-radius: $radius-lg;
+        cursor: pointer;
+        transition: $transition-base;
+        text-align: center;
+
+        &:hover {
+          border-color: $primary-red-light;
+          transform: scale(1.05);
+          box-shadow: $shadow-md;
+        }
+
+        &--selected {
+          border-color: $primary-red;
+          background: $primary-red-bg;
+
+          .cargo-icon {
+            transform: scale(1.2);
+          }
+        }
+
+        .cargo-icon {
+          font-size: 32px;
+          margin-bottom: $spacing-sm;
+          transition: $transition-base;
+        }
+
+        .cargo-name {
+          font-size: $font-size-sm;
+          font-weight: $font-weight-medium;
+          color: $text-primary;
+          margin-bottom: $spacing-xs;
+        }
+
+        .cargo-specs {
+          font-size: $font-size-xs;
+          color: $text-tertiary;
+
+          span {
+            display: block;
+            margin: 2px 0;
+          }
+        }
+
+        .cargo-multiplier {
+          margin-top: $spacing-xs;
+          padding: $spacing-xs;
+          background: $warning-amber-bg;
+          color: $warning-amber-dark;
+          border-radius: $radius-sm;
+          font-size: $font-size-xs;
+          font-weight: $font-weight-medium;
+        }
+      }
+    }
+  }
+
+  .cargo-details {
+    background: $bg-secondary;
+    border-radius: $radius-lg;
+    padding: $spacing-lg;
+
+    h4 {
+      font-size: $font-size-lg;
+      margin-bottom: $spacing-md;
+      color: $text-primary;
+    }
+
+    .detail-row {
+      margin-bottom: $spacing-md;
+
+      label {
+        display: block;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $text-secondary;
+        margin-bottom: $spacing-xs;
+      }
+
+      .weight-input {
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+
+        input {
+          @include input-field;
+          width: 120px;
+        }
+
+        .weight-limit {
+          font-size: $font-size-sm;
+          color: $text-tertiary;
+        }
+      }
+
+      .quantity-input {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        width: fit-content;
+
+        button {
+          width: 36px;
+          height: 36px;
+          border: 1px solid $border-default;
+          border-radius: $radius-md;
+          background: $bg-primary;
+          color: $text-primary;
+          font-size: $font-size-lg;
+          cursor: pointer;
+          transition: $transition-base;
+
+          &:hover {
+            background: $bg-tertiary;
+            border-color: $primary-red;
+          }
+        }
+
+        input {
+          width: 60px;
+          text-align: center;
+          padding: $spacing-sm;
+          border: 1px solid $border-default;
+          border-radius: $radius-md;
+          font-size: $font-size-base;
+        }
+      }
+
+      .dimensions-toggle {
+        padding: $spacing-sm $spacing-md;
+        background: $bg-primary;
+        border: 1px solid $border-default;
+        border-radius: $radius-md;
+        color: $secondary-blue;
+        font-size: $font-size-sm;
+        cursor: pointer;
+        transition: $transition-base;
+
+        &:hover {
+          background: $secondary-blue-bg;
+          border-color: $secondary-blue;
+        }
+      }
+    }
+
+    .dimensions-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: $spacing-lg;
+      margin-top: $spacing-md;
+      padding: $spacing-md;
+      background: $bg-primary;
+      border-radius: $radius-lg;
+
+      @include mobile {
+        grid-template-columns: 1fr;
+      }
+
+      h5 {
+        font-size: $font-size-base;
+        margin-bottom: $spacing-sm;
+        color: $text-primary;
+      }
+
+      p {
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        margin: $spacing-xs 0;
+      }
+
+      .dimension-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+
+        input {
+          @include input-field;
+          font-size: $font-size-sm;
+        }
+      }
+    }
+
+    .cargo-summary {
+      margin-top: $spacing-lg;
+      padding: $spacing-md;
+      background: $bg-primary;
+      border-radius: $radius-lg;
+      border: 2px solid $primary-red-light;
+
+      h5 {
+        font-size: $font-size-lg;
+        margin-bottom: $spacing-md;
+        color: $text-primary;
+      }
+
+      .summary-details {
+        p {
+          font-size: $font-size-base;
+          color: $text-primary;
+          margin: $spacing-sm 0;
+
+          strong {
+            color: $text-secondary;
+            font-weight: $font-weight-medium;
+            margin-right: $spacing-sm;
+          }
+
+          &.price-adjustment {
+            color: $warning-amber-dark;
+            background: $warning-amber-bg;
+            padding: $spacing-xs $spacing-sm;
+            border-radius: $radius-sm;
+            margin-top: $spacing-sm;
+          }
+
+          &.recommended-vehicle {
+            color: $success-green-dark;
+            background: $success-green-bg;
+            padding: $spacing-xs $spacing-sm;
+            border-radius: $radius-sm;
+            margin-top: $spacing-sm;
+          }
+        }
+      }
+    }
+  }
+}

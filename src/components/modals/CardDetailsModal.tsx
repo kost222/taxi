@@ -10,17 +10,13 @@ import images from '../../constants/images'
 import './styles.scss'
 import { IRootState } from '../../state'
 import Overlay from './Overlay'
-
 const mapStateToProps = (state: IRootState) => ({
   isOpen: modalsSelectors.isCardDetailsModalOpen(state),
 })
-
 const mapDispatchToProps = {
   setCardDetailsModal: modalsActionCreators.setCardDetailsModal,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IFormValues {
   cardNumber: string,
   name: string,
@@ -28,10 +24,8 @@ interface IFormValues {
   year: string,
   cvv: string
 }
-
 interface IProps extends ConnectedProps<typeof connector> {
 }
-
 const CardDetailsModal: React.FC<IProps> = ({
   isOpen,
   setCardDetailsModal,
@@ -40,20 +34,13 @@ const CardDetailsModal: React.FC<IProps> = ({
     criteriaMode: 'all',
     mode: 'onChange',
   })
-
   const onSubmit = (data: any, e?: React.BaseSyntheticEvent) => {
     (e as React.BaseSyntheticEvent).preventDefault()
-
     if (isValid) {
-      console.log('Fields is valid')
-
     } else {
-      console.error('Fields is not valid')
     }
-
     setCardDetailsModal(false)
   }
-
   return (
     <Overlay
       isOpen={isOpen}
@@ -137,6 +124,4 @@ const CardDetailsModal: React.FC<IProps> = ({
     </Overlay>
   )
 }
-
 export default connector(CardDetailsModal)
-

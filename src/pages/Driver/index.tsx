@@ -6,6 +6,7 @@ import { t, TRANSLATION } from '../../localization'
 import { connect, ConnectedProps } from 'react-redux'
 import { IRootState } from '../../state'
 import { useInterval, useQuery } from '../../tools/hooks'
+import { useRealtimeOrders } from '../../hooks/useRealtimeOrders'
 import './styles.scss'
 import { ordersSelectors, ordersActionCreators } from '../../state/orders'
 import { modalsActionCreators } from '../../state/modals'
@@ -15,35 +16,26 @@ import cn from 'classnames'
 import ErrorFrame from '../../components/ErrorFrame'
 import images from '../../constants/images'
 import { withLayout } from '../../HOCs/withLayout'
-
 const mapStateToProps = (state: IRootState) => ({
   activeOrders: ordersSelectors.activeOrders(state),
   readyOrders: ordersSelectors.readyOrders(state),
   historyOrders: ordersSelectors.historyOrders(state),
   user: userSelectors.user(state),
 })
-
 const mapDispatchToProps = {
   ...ordersActionCreators,
   setLoginModal: modalsActionCreators.setLoginModal,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
-
 export const OrderAddressContext = createContext<{ ordersAddressRef: React.RefObject<{
   [orderId: string]: IAddressPoint;
 }> }|null>(null)
-
-
 export enum EDriverTabs {
   Map = 'map',
   Lite = 'lite',
   Detailed = 'detailed'
 }
-
 interface IProps extends ConnectedProps<typeof connector> {
-
 }
 const Driver: React.FC<IProps> = ({
   activeOrders,
@@ -55,25 +47,35 @@ const Driver: React.FC<IProps> = ({
   getReadyOrders,
   setLoginModal,
 }) => {
-
   const { tab = EDriverTabs.Lite } = useQuery()
-
   const navigate = useNavigate()
-
   const ordersAddressRef = useRef<{ [orderId:string]: IAddressPoint }>({})
-
+  // Use real-time updates instead of polling
+  useRealtimeOrders(user?.u_id || '', {
+    onOrderUpdate: (order) => {
+      // Dispatch action to update specific order in store
+      getActiveOrders({ estimate: true })
+      getReadyOrders({ estimate: true })
+    },
+    onOrderCreate: (order) => {
+      getReadyOrders({ estimate: true })
+    },
+    onOrderDelete: (orderId) => {
+      getActiveOrders({ estimate: true })
+      getReadyOrders({ estimate: true })
+      getHistoryOrders()
+    }
+  })
+  // Keep polling as fallback but with reduced frequency
   useInterval(() => {
     user && getActiveOrders({ estimate: true })
-  }, 2000)
-
+  }, 10000)
   useInterval(() => {
     user && getReadyOrders({ estimate: true })
-  }, 3000)
-
+  }, 8000)
   useInterval(() => {
     user && getHistoryOrders()
-  }, 10000)
-
+  }, 20000)
   useEffect(() => {
     if (user) {
       getActiveOrders({ estimate: true })
@@ -81,7 +83,6 @@ const Driver: React.FC<IProps> = ({
       getHistoryOrders()
     }
   }, [user])
-
   if (user?.u_role !== EUserRoles.Driver) {
     return <ErrorFrame
       renderImage={() => (
@@ -92,7 +93,6 @@ const Driver: React.FC<IProps> = ({
       title={t(TRANSLATION.UNAUTHORIZED_ACCESS)}
     />
   }
-
   return (
     <>
       <div className="driver-tabs">
@@ -138,5 +138,4 @@ const Driver: React.FC<IProps> = ({
     </>
   )
 }
-
 export default withLayout(connector(Driver))

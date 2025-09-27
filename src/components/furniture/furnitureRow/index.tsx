@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import cn from 'classnames'
 import furniture, { IFurnitureItem } from '../../../constants/furniture'
 import { t, TRANSLATION } from '../../../localization'
@@ -17,6 +17,7 @@ const FurnitureRow: React.FC<IProps> = ({ id, value, onChoose, onChange }) => {
   const [hoverActive, setHoverActive] = useState(false)
   const [clickActive, setClickActive] = useState(false)
   const [focusActive, setFocusActive] = useState(false)
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const active = (clickActive || hoverActive || focusActive) && window.innerWidth < 768
   const item = furniture.find(i => i.id === id)
@@ -25,6 +26,15 @@ const FurnitureRow: React.FC<IProps> = ({ id, value, onChoose, onChange }) => {
     if ((clickActive || focusActive) && onChoose) onChoose(id)
   }, [clickActive, focusActive])
 
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current)
+      }
+    }
+  }, [])
+
   if (!item) return null
 
   return (
@@ -32,7 +42,13 @@ const FurnitureRow: React.FC<IProps> = ({ id, value, onChoose, onChange }) => {
       className={cn('furniture__row', { 'furniture__row--active': !onChoose || active })}
       onMouseEnter={() => setHoverActive(true)}
       onMouseLeave={() => setHoverActive(false)}
-      onClick={() => {setClickActive(true); setTimeout(() => setClickActive(false), 5000)}}
+      onClick={() => {
+        setClickActive(true)
+        if (clickTimeoutRef.current) {
+          clearTimeout(clickTimeoutRef.current)
+        }
+        clickTimeoutRef.current = setTimeout(() => setClickActive(false), 5000)
+      }}
       style={{
         border: value && !active ? `2px solid ${SITE_CONSTANTS.PALETTE.secondary.main}` : undefined,
         background: !onChoose || active ?

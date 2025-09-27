@@ -1,3 +1,5 @@
+import { handleError, ErrorCode } from '../utils/errorHandler'
+
 export function getItem<T>(
   key: string,
   defaultValue?: T,
@@ -13,7 +15,7 @@ export function getItem<T>(
     value = localStorage.getItem(key)
     value = value !== null ? JSON.parse(value) : defaultValue
   } catch (error) {
-    console.error(`Error occured at getItem(${key})`, error)
+    handleError(error, `localStorage getItem(${key})`)
     value = defaultValue
   }
   return allowableValues ?
@@ -27,7 +29,7 @@ export function setItem<T>(key: string, value: T) {
   try {
     localStorage.setItem(key, JSON.stringify(value))
   } catch (error) {
-    console.error(`Error occured at setItem(${key}, ${value})`, error)
+    handleError(error, `localStorage setItem(${key})`)
   }
 }
 
@@ -35,6 +37,6 @@ export function removeItem(key: string) {
   try {
     localStorage.removeItem(key)
   } catch (error) {
-    console.error(`Error occured at removeItem(${key})`, error)
+    handleError(error, `localStorage removeItem(${key})`)
   }
 }

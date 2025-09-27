@@ -1,12 +1,17 @@
+// Импортируем современные стили
+@import './modern-styles';
+
 .overlay {
   cursor: pointer;
-  background: rgba(0, 0, 0, 0.17);
-  backdrop-filter: blur(5px);
-  position: absolute;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  animation: fadeIn 0.2s ease;
 
   &__wrapper {
     position: fixed;

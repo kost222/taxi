@@ -21,13 +21,11 @@ import PageSection from '../../components/PageSection'
 import BoundaryButtons from '../../components/BoundaryButtons'
 import VotingForm from './VotingForm'
 import './styles.scss'
-
 const mapStateToProps = (state: IRootState) => ({
   activeOrders: ordersSelectors.activeOrders(state),
   selectedOrder: clientOrderSelectors.selectedOrder(state),
   user: userSelectors.user(state),
 })
-
 const mapDispatchToProps = {
   setVoteModal: modalsActionCreators.setVoteModal,
   setDriverModal: modalsActionCreators.setDriverModal,
@@ -41,11 +39,8 @@ const mapDispatchToProps = {
   setTo: clientOrderActionCreators.setTo,
   setSelectedOrder: clientOrderActionCreators.setSelectedOrder,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IProps extends ConnectedProps<typeof connector> { }
-
 function Passenger({
   activeOrders,
   selectedOrder: selectedOrderID,
@@ -62,14 +57,11 @@ function Passenger({
   setTo,
   setSelectedOrder,
 }: IProps) {
-
   const [showOrderCards, setShowOrderCards] = useState(true)
-
   const mapCenter = useRef<[lat: number, lng: number]>(null)
   const setMapCenter = useCallback((value: [number, number]) => {
     mapCenter.current = value
   }, [])
-
   const formContainerRef = useRef<HTMLDivElement>(null)
   const draggableRef = useRef<HTMLDivElement>(null)
   const minimizedPartRef = useRef<HTMLElement>(null)
@@ -78,7 +70,6 @@ function Passenger({
     formContainerRef, draggableRef,
     minimizedPartRef, formSlidersRef,
   )
-
   const setFromAsMapCenter = useCallback(() => {
     if (isExpanded)
       setIsExpanded(false)
@@ -95,7 +86,6 @@ function Passenger({
       setTo({ latitude, longitude })
     }
   }, [isExpanded])
-
   const selectedOrder = useMemo(() =>
     activeOrders?.find((item) => item.b_id === selectedOrderID) ?? null
   , [activeOrders, selectedOrderID])
@@ -105,12 +95,10 @@ function Passenger({
       (item) => item.c_state > EBookingDriverState.Canceled,
     )
   , [selectedOrder])
-
   const prevSelectedOrder = useRef<IOrder | null>(null)
   useEffect(() => {
     prevSelectedOrder.current = selectedOrder
   }, [selectedOrder])
-
   useEffect(() => {
     if (user)
       getActiveOrders()
@@ -119,45 +107,43 @@ function Passenger({
     if (user)
       getActiveOrders()
   }, 5000)
-
   const prevActiveOrders = useRef<IOrder[]>(activeOrders ?? [])
   useEffect(() => {
     for (const order of prevActiveOrders.current)
       recreateExpiredVotingOrder(order)
     prevActiveOrders.current = activeOrders ?? []
   }, [activeOrders])
-
   const recreateExpiredVotingOrder = async(order: IOrder) => {
-    if (
-      order.b_voting &&
-      order.b_start_datetime &&
-      (order.b_max_waiting || SITE_CONSTANTS.WAITING_INTERVAL) -
-      moment().diff(order.b_start_datetime, 'seconds') <=
-      0
-    ) {
-      API.cancelDrive(order.b_id)
-
-      try {
-        const response = await API.postDrive({
-          ...order,
-          b_start_datetime: moment(),
-          b_max_waiting: undefined,
-        })
-        getActiveOrders()
-        setSelectedOrder(response.b_id)
-      }
-
-      catch (error) {
-        console.error(error)
-        setMessageModal({
-          isOpen: true,
-          status: EStatuses.Fail,
-          message: (error as any).message,
-        })
-      }
-    }
+    // Disabled: Don't show expired voting to clients
+    return;
+    // Original code commented out:
+    // if (
+    //   order.b_voting &&
+    //   order.b_start_datetime &&
+    //   (order.b_max_waiting || SITE_CONSTANTS.WAITING_INTERVAL) -
+    //   moment().diff(order.b_start_datetime, 'seconds') <=
+    //   0
+    // ) {
+    //   API.cancelDrive(order.b_id)
+    //   try {
+    //     const response = await API.postDrive({
+    //       ...order,
+    //       b_start_datetime: moment(),
+    //       b_max_waiting: undefined,
+    //     })
+    //     getActiveOrders()
+    //     setSelectedOrder(response.b_id)
+    //   }
+    //   catch (error) {
+    //     console.error(error)
+    //     setMessageModal({
+    //       isOpen: true,
+    //       status: EStatuses.Fail,
+    //       message: (error as any).message,
+    //     })
+    //   }
+    // }
   }
-
   const openCurrentModal = () => {
     if (!selectedOrder) {
       setVoteModal(false)
@@ -165,19 +151,15 @@ function Passenger({
       setOnTheWayModal(false)
       return
     }
-
     if (selectedOrder.b_voting && !selectedOrderDriver) {
       setVoteModal(true)
       return
     }
-
     onDriverStateChange()
   }
-
   useEffect(() => {
     onDriverStateChange()
   }, [selectedOrderDriver?.c_state])
-
   const onDriverStateChange = () => {
     if (
       !selectedOrderDriver ||
@@ -188,7 +170,6 @@ function Passenger({
       setOnTheWayModal(false)
       return
     }
-
     if (
       [
         EBookingDriverState.Performer,
@@ -204,13 +185,11 @@ function Passenger({
       setOnTheWayModal(true)
     }
   }
-
   const [orderReselected, setOrderReselected] = useState(false)
   if (orderReselected) {
     openCurrentModal()
     setOrderReselected(false)
   }
-
   // Used to open rating modal
   useEffect(() => {
     if (!prevSelectedOrder.current)
@@ -233,15 +212,13 @@ function Passenger({
           if (resDriver?.c_state === EBookingDriverState.Finished)
             setRatingModal({ isOpen: true, orderID: id })
         })
-        .catch((error) => console.error(error))
+        .catch((error) => console.error('Error fetching booking:', error))
     }
   }, [selectedOrder])
-
   const handleOrderClick = (order: IOrder) => {
     setSelectedOrder(order.b_id)
     setOrderReselected(true)
   }
-
   const submittedOrderId = useRef<IOrder['b_id'] | null>(null)
   const onSubmit = (data: { b_id: IOrder['b_id'] }) => {
     submittedOrderId.current = data.b_id
@@ -258,13 +235,10 @@ function Passenger({
         submittedOrderId.current = null
       }
   }, [activeOrders])
-
   return (
     <Layout>
       <PageSection className="passenger" scrollable={false}>
-
         {showOrderCards && <PassengerMiniOrders handleOrderClick={handleOrderClick} />}
-
         <div className="control-buttons">
           <button
             className="toggle-orders-btn"
@@ -272,7 +246,6 @@ function Passenger({
           >
             {showOrderCards ? 'Hide Orders' : 'Show Orders'}
           </button>
-
           <button
             className="add-order-btn"
             onClick={() => {
@@ -285,7 +258,6 @@ function Passenger({
           >
             + Add Order
           </button>
-
           <button
             className="remove-order-btn"
             onClick={() => {
@@ -299,14 +271,11 @@ function Passenger({
             - Remove Order
           </button>
         </div>
-
         <Map
           containerClassName="passenger__form-map-container"
           setCenter={setMapCenter}
         />
-
         <div className="passenger__form-placeholder" />
-
         <div
           ref={formContainerRef}
           className="passenger__form-container"
@@ -317,7 +286,6 @@ function Passenger({
             ref={draggableRef}
           >
             <div className="passenger__swipe-line"></div>
-
             <VotingForm
               isExpanded={isExpanded}
               setIsExpanded={setIsExpanded}
@@ -329,10 +297,8 @@ function Passenger({
             />
           </div>
         </div>
-
       </PageSection>
     </Layout>
   )
 }
-
 export default connector(Passenger)

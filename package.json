@@ -114,7 +114,15 @@
         "build:default": "set NODE_OPTIONS=--openssl-legacy-provider && node scripts/build.js",
         "build:nix": "NODE_OPTIONS=--openssl-legacy-provider node scripts/build.js",
         "prepare-build": "npm version patch && node pre-build.js",
-        "lint-fix": "eslint src/**/*.{ts,tsx} --fix"
+        "build:production": "run-script-os",
+        "build:production:default": "set NODE_ENV=production && set NODE_OPTIONS=--openssl-legacy-provider && node scripts/build.js",
+        "build:production:nix": "NODE_ENV=production NODE_OPTIONS=--openssl-legacy-provider node scripts/build.js",
+        "lint": "eslint src/**/*.{ts,tsx}",
+        "lint-fix": "eslint src/**/*.{ts,tsx} --fix",
+        "type-check": "tsc --noEmit",
+        "clean": "run-script-os",
+        "clean:default": "rmdir /s build && rmdir /s node_modules/.cache",
+        "clean:nix": "rm -rf build && rm -rf node_modules/.cache"
     },
     "browserslist": {
         "production": [
@@ -197,6 +205,7 @@
         "eslint": "^7.26.0",
         "eslint-plugin-react": "^7.23.2",
         "eslint-webpack-plugin": "^2.5.4",
+        "react-scripts": "^5.0.1",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.3",
         "xml-loader": "^1.2.1"

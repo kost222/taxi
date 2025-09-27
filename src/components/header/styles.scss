@@ -46,7 +46,7 @@ $height: 73px;
       flex-direction: column;
       align-items: center;
       overflow: auto;
-      z-index: 500;
+      z-index: 1100; // Выше, чем карточки заказов
       border-radius: 5px;
       position: absolute;
       padding: 7px;
@@ -133,13 +133,13 @@ $height: 73px;
       padding: 0;
       overflow: hidden;
       box-shadow: 0 0 5px darken(#fff, 50);
-      z-index: 10;
+      z-index: 1090; // Базовый z-index для меню
 
       &--active {
         opacity: 1;
         transform: scale(1);
         max-height: 500px;
-        z-index: 500;
+        z-index: 1100; // Выше, чем карточки заказов
       }
     }
 

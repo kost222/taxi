@@ -41,3 +41,7 @@ export const deleteFilesModalDeleteFiles = createSelector(
   moduleSelector, state => state.deleteFilesModal.handleDeleteFiles,
 )
 export const isShowSwitchersMenu = createSelector(moduleSelector, state => state.isShowSwitchersMenu)
+export const isReviewModalOpen = createSelector(moduleSelector, state => state.reviewModal.isOpen)
+export const reviewOrderId = createSelector(moduleSelector, state => state.reviewModal.orderId)
+export const isBoardingCodeModalOpen = createSelector(moduleSelector, state => state.boardingCodeModal.isOpen)
+export const boardingCodeOrderId = createSelector(moduleSelector, state => state.boardingCodeModal.orderId)

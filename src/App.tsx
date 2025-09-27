@@ -21,11 +21,14 @@ import ProfileModal from './components/modals/ProfileModal'
 import CandidatesModal from './components/modals/CandidatesModal'
 import MessageModal from './components/modals/MessageModal'
 import SITE_CONSTANTS from './siteConstants'
+import { hasReactNativeWebView } from './types/window'
+import { TIMEOUTS } from './constants/timeouts'
 import { Helmet } from 'react-helmet-async'
 import { configSelectors } from './state/config'
 import { userActionCreators, userSelectors } from './state/user'
 import './App.scss'
 import { IRootState } from './state'
+import { logger } from './utils/logger'
 import * as API from './API'
 import { modalsSelectors } from './state/modals'
 import Chat from './components/Chat'
@@ -55,8 +58,8 @@ const App: React.FC<IProps> = ({
   configStatus,
   initUser,
 }) => {
-  if ((window as any).ReactNativeWebView) {
-    (window as any).ReactNativeWebView.postMessage(
+  if (hasReactNativeWebView() && window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(
       JSON.stringify({ type: 'SYSTEM', message: 'START' }),
     )
   }
@@ -65,7 +68,7 @@ const App: React.FC<IProps> = ({
     initUser()
 
     API.activateChatServer()
-    const interval = setInterval(() => API.activateChatServer(), 30000)
+    const interval = setInterval(() => API.activateChatServer(), TIMEOUTS.CHAT_SERVER_ACTIVATION)
     return () => {
       clearInterval(interval)
     }
@@ -87,36 +90,38 @@ const App: React.FC<IProps> = ({
         )}
         <style>{`
           .colored {
-            color: ${SITE_CONSTANTS.PALETTE.primary.dark}
+            color: ${SITE_CONSTANTS.PALETTE?.primary?.dark || '#FF4444'}
           }
 
           section details summary {
-            color: ${SITE_CONSTANTS.PALETTE.primary.dark};
+            color: ${SITE_CONSTANTS.PALETTE?.primary?.dark || '#FF4444'};
           }
           section details summary::after {
-            border-top: 10px solid ${SITE_CONSTANTS.PALETTE.primary.main};
+            border-top: 10px solid ${SITE_CONSTANTS.PALETTE?.primary?.main || '#FF4444'};
           }
 
           .modal .active {
-            color: ${SITE_CONSTANTS.PALETTE.primary.dark}
+            color: ${SITE_CONSTANTS.PALETTE?.primary?.dark || '#FF4444'}
           }
           .modal form fieldset h3, .modal form fieldset h4 {
-            color: ${SITE_CONSTANTS.PALETTE.primary.dark}
+            color: ${SITE_CONSTANTS.PALETTE?.primary?.dark || '#FF4444'}
           }
 
           .phone-link {
-            border-bottom: 1px solid ${SITE_CONSTANTS.PALETTE.primary.light};
+            border-bottom: 1px solid ${SITE_CONSTANTS.PALETTE?.primary?.light || '#FF6B6B'};
           }
           .phone-link:hover {
-            border-bottom-color: ${SITE_CONSTANTS.PALETTE.primary.dark};
+            border-bottom-color: ${SITE_CONSTANTS.PALETTE?.primary?.dark || '#FF4444'};
           }
         `}</style>
       </Helmet>
     )
   }
 
+  logger.debug('App component initialized', { language: language?.id, configStatus })
+
   return (
-    <React.Fragment key={`${language.id}_${configStatus}`}>
+    <React.Fragment key={`${language?.id || 'en'}_${configStatus}`}>
       <Theme>
         {getMetaTags()}
         <AppRoutes />

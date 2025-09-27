@@ -1,0 +1,155 @@
+@import '../../styles/variables';
+
+.delivery-tip-input {
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &__header {
+    margin-bottom: 12px;
+  }
+
+  &__title {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  &__hint {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    line-height: 1.4;
+  }
+
+  &__presets {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  &__preset {
+    flex: 1;
+    min-width: 60px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: $primary-color;
+      background: rgba($primary-color, 0.05);
+    }
+
+    &--active {
+      background: $primary-color;
+      color: white;
+      border-color: $primary-color;
+      font-weight: 600;
+
+      &:hover {
+        background: darken($primary-color, 10%);
+      }
+    }
+  }
+
+  &__custom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  &__btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid $primary-color;
+    background: white;
+    color: $primary-color;
+    font-size: 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover:not(:disabled) {
+      background: $primary-color;
+      color: white;
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    &--minus {
+      padding-bottom: 2px;
+    }
+  }
+
+  &__value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    min-width: 120px;
+  }
+
+  &__input {
+    border: none;
+    outline: none;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    width: 80px;
+    text-align: center;
+    background: transparent;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+
+  &__currency {
+    font-size: 16px;
+    color: #666;
+    font-weight: 500;
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: #FFF8E1;
+    border-radius: 8px;
+    border: 1px solid #FFD54F;
+  }
+
+  &__info-icon {
+    font-size: 18px;
+  }
+
+  &__info-text {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+  }
+}

@@ -1,6 +1,6 @@
 import { TForm } from './types'
 
-const cities = (window as any).data?.cities || ['A', 'B', 'C']
+const cities = window.data?.cities || { 'default': { '1': 'Default City' } }
 const cityOptions = Object.keys(cities).map(key => ({ value: key, label: cities[key]['1'] }))
 
 export const fieldsRegister : TForm = [

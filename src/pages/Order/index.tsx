@@ -22,7 +22,7 @@ import { modalsActionCreators } from '../../state/modals'
 import { userSelectors } from '../../state/user'
 import { EMapModalTypes } from '../../state/modals/constants'
 import { withLayout } from '../../HOCs/withLayout'
-
+import PriceAdjuster from '../../components/PriceAdjuster'
 const mapStateToProps = (state: IRootState) => ({
   order: orderSelectors.order(state),
   client: orderSelectors.client(state),
@@ -32,7 +32,6 @@ const mapStateToProps = (state: IRootState) => ({
   message: orderSelectors.message(state),
   user: userSelectors.user(state),
 })
-
 const mapDispatchToProps = {
   getOrder: orderActionCreators.getOrder,
   setOrder: orderActionCreators.setOrder,
@@ -43,16 +42,13 @@ const mapDispatchToProps = {
   setMapModal: modalsActionCreators.setMapModal,
   setMessageModal: modalsActionCreators.setMessageModal,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IFormValues {
   votingNumber: number
   performers_price: number
+  pickup_fee?: number
 }
-
 interface IProps extends ConnectedProps<typeof connector> {}
-
 const Order: React.FC<IProps> = ({
   order,
   client,
@@ -71,32 +67,35 @@ const Order: React.FC<IProps> = ({
 }) => {
   const [isFromAddressShort, setIsFromAddressShort] = useState(true)
   const [isToAddressShort, setIsToAddressShort] = useState(true)
-
+  const [adjustedPrice, setAdjustedPrice] = useState(0)
+  const [pickupFee, setPickupFee] = useState(0)
+  const [showPriceAdjuster, setShowPriceAdjuster] = useState(false)
   const id = useParams().id as string
   const navigate = useNavigate()
-
   const driver = order?.drivers?.find(item => item.c_state > EBookingDriverState.Canceled)
-
   const { register, formState: { errors }, handleSubmit: formHandleSubmit, getValues } = useForm<IFormValues>({
     criteriaMode: 'all',
     mode: 'onSubmit',
   })
-
   useEffect(() => {
     getOrder(id)
     return () => {
       setOrder(null)
     }
   }, [])
-
   useInterval(() => {
     getOrder(id)
   }, 3000)
-
   const handleSubmit = () => {
     const isCandidate = ['96', '95'].some(item => order?.b_comments?.includes(item))
-
-    API.takeOrder(id, { ...getValues() }, isCandidate)
+    const values = getValues()
+    if (adjustedPrice > 0) {
+      values.performers_price = adjustedPrice
+    }
+    if (pickupFee > 0) {
+      values.pickup_fee = pickupFee
+    }
+    API.takeOrder(id, values, isCandidate)
       .then(() => {
         getOrder(id)
         setMessageModal({
@@ -106,7 +105,6 @@ const Order: React.FC<IProps> = ({
         })
       })
       .catch(error => {
-        console.error(error)
         setMessageModal({
           isOpen: true,
           message: error.toString() || t(TRANSLATION.ERROR),
@@ -114,27 +112,36 @@ const Order: React.FC<IProps> = ({
         })
       })
   }
-
   const onHideOrder = () => {
     addHiddenOrder(id, user?.u_id)
     navigate('/driver-order')
   }
-
   const onArrivedClick = () =>
     API.setOrderState(id, EBookingDriverState.Arrived)
-      .then(() => getOrder(id))
-      .catch(error => {
-        console.error(error)
-        setMessageModal({ isOpen: true, message: t(TRANSLATION.ERROR), status: EStatuses.Fail })
+      .then(() => {
+        getOrder(id)
+        setMessageModal({
+          isOpen: true,
+          message: t(TRANSLATION.DRIVER_ARRIVED_MESSAGE) || 'Водитель прибыл на место. Ожидайте клиента.',
+          status: EStatuses.Success
+        })
       })
-
+      .catch(error => {
+        const errorMessage = error?.response?.data?.message ||
+                           error?.message ||
+                           'Не удалось отметить прибытие. Проверьте соединение и попробуйте снова.'
+        setMessageModal({
+          isOpen: true,
+          message: errorMessage,
+          status: EStatuses.Fail
+        })
+      })
   const onStartedClick = () =>
     API.setOrderState(id, EBookingDriverState.Started)
       .then(() => {
         getOrder(id)
         navigate('/driver-order?tab=map')
       })
-
   const onCompleteOrderClick = () => {
     if (!driver?.c_started) {
       setMessageModal({ 
@@ -144,8 +151,6 @@ const Order: React.FC<IProps> = ({
       })
       return
     }
-
-    
     API.setOrderState(id, EBookingDriverState.Finished)
       .then(() => {
         getOrder(id)
@@ -157,7 +162,6 @@ const Order: React.FC<IProps> = ({
         setRatingModal({ isOpen: true })
       })
       .catch(error => {
-        console.error(error)
         setMessageModal({ 
           isOpen: true, 
           status: EStatuses.Fail, 
@@ -165,16 +169,12 @@ const Order: React.FC<IProps> = ({
         })
       })
   }
-
   const onAlarmClick = () =>
     setAlarmModal({ isOpen: true })
-
   const onRateOrderClick = () =>
     setRatingModal({ isOpen: true })
-
   const onExit = () =>
     navigate('/driver-order')
-
   const getButtons = () => {
     if (!order) return (
       <Button
@@ -185,7 +185,6 @@ const Order: React.FC<IProps> = ({
         status={status}
       />
     )
-
     if (driver?.c_state === EBookingDriverState.Finished && driver?.c_rating) return (
       <Button
         text={t(TRANSLATION.EXIT)}
@@ -216,17 +215,12 @@ const Order: React.FC<IProps> = ({
           label={t(TRANSLATION.DRIVE_NUMBER)}
         />
       )}
-      {['96', '95'].some(item => order?.b_comments?.includes(item)) && (
-        <Input
-          inputProps={{
-            ...register('performers_price', { required: t(TRANSLATION.REQUIRED_FIELD), min: 0, valueAsNumber: true }),
-            type: 'number',
-            min: 0,
-          }}
-          error={errors?.performers_price?.message}
-          label={t(TRANSLATION.PRICE_PERFORMER)}
-          oneline
-        />
+      {['96', '95'].some(item => order?.b_comments?.includes(item)) ? (
+        // For auction orders, show the price adjuster component
+        null
+      ) : (
+        // For regular orders, keep the simple input field
+        null
       )}
       {order.drivers?.find(i => i.u_id === user?.u_id)?.c_state !== EBookingDriverState.Considering && (<>
         <Button
@@ -295,7 +289,6 @@ const Order: React.FC<IProps> = ({
       />
     </>
   }
-
   return status === EStatuses.Loading && !order ?
     <LoadFrame/> :
     <PageSection className="order">
@@ -472,8 +465,22 @@ const Order: React.FC<IProps> = ({
               </div>
             </div>
             <div className="order__separator"/>
-
             <OrderInfo order={order}/>
+            {/* Price adjustment for drivers accepting orders (Tasks 12-14) */}
+            {!driver && order?.b_price_estimate && ['96', '95'].some(item => order?.b_comments?.includes(item)) && (
+              <>
+                <PriceAdjuster
+                  basePrice={order.b_price_estimate}
+                  onPriceChange={(price, fee) => {
+                    setAdjustedPrice(price)
+                    setPickupFee(fee)
+                  }}
+                  isAuction={true}
+                  currentBids={order.drivers?.map(d => d.c_price || 0).filter(p => p > 0) || []}
+                />
+                <div className="order__separator"/>
+              </>
+            )}
             {getButtons()}
             {
               driver && driver.u_id === user?.u_id && (
@@ -489,5 +496,4 @@ const Order: React.FC<IProps> = ({
       }
     </PageSection>
 }
-
 export default withLayout(connector(Order))

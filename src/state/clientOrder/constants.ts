@@ -18,6 +18,7 @@ export const ActionTypes = {
   SET_LOCATION_CLASS: `${prefix}/SET_LOCATION_CLASS`,
   SET_PHONE: `${prefix}/SET_PHONE`,
   SET_CUSTOMER_PRICE: `${prefix}/SET_PRICE`,
+  SET_DELIVERY_TIP: `${prefix}/SET_DELIVERY_TIP`,
   SET_SELECTED_ORDER: `${prefix}/SET_SELECTED_ORDER`,
   SET_STATUS: `${prefix}/SET_STATUS`,
   SET_MESSAGE: `${prefix}/SET_MESSAGE`,
@@ -42,6 +43,7 @@ export interface IClientOrderState {
   phone: number | null,
   phoneEdited: boolean,
   customerPrice: number | null,
+  deliveryTip: number,  // Чаевые "На подачу" для стимулирования водителей
   selectedOrder: IOrder['b_id'] | null,
   status: EStatuses,
   message: string

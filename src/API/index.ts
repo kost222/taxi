@@ -35,6 +35,8 @@ import {
   addToFormData, apiMethod, IApiMethodArguments, IResponseFields,
 } from '../tools/api'
 import getCountryISO3 from '../tools/countryISO2To3'
+import { logger } from '../utils/logger'
+import { handleError, ErrorCode, AppError } from '../utils/errorHandler'
 import SITE_CONSTANTS from '../siteConstants'
 import Config from '../config'
 import { t, TRANSLATION } from '../localization'
@@ -43,13 +45,11 @@ import { configSelectors } from '../state/config'
 import { userSelectors } from '../state/user'
 import { ERegistrationType } from '../state/user/constants'
 import { getCacheVersion } from './cacheVersion'
-
 export { getCacheVersion }
 export {
   getAreasIdsBetweenPoints,
   getArea,
 } from './way'
-
 export enum EBookingActions {
     SetConfirmState = 'set_confirm_state',
     SetWaitingTime = 'set_waiting_time',
@@ -62,7 +62,6 @@ export enum EBookingActions {
     SetTips = 'set_tips',
     Edit = 'edit',
 }
-
 const _uploadFile = (
   { formData }: IApiMethodArguments,
   data: any,
@@ -82,9 +81,7 @@ const _uploadFile = (
     .then(form => axios.post(`${Config.API_URL}/dropbox/file`, form))
     .then(res => ({ ...res, dl_id: res?.data?.data?.dl_id }))
 }
-
 export const uploadFile = apiMethod<typeof _uploadFile>(_uploadFile, { authRequired: false })
-
 const _register = (
   { formData }: IApiMethodArguments,
   data: Partial<IUser>,
@@ -127,7 +124,6 @@ const _register = (
  * @returns string - password if email is not specified
  */
 export const register = apiMethod<typeof _register>(_register, { authRequired: false })
-
 const _checkRefCode = (
   { formData }: IApiMethodArguments,
   ref_code: string,
@@ -137,9 +133,7 @@ const _checkRefCode = (
       return res.data?.data?.ref_code_free || false
     })
 }
-
 export const checkRefCode = apiMethod<typeof _checkRefCode>(_checkRefCode, { authRequired: false })
-
 const _login = (
   { formData }: IApiMethodArguments,
   data: {
@@ -152,7 +146,6 @@ const _login = (
     ...data,
     au: 'f',
   })
-
   return axios.post(`${Config.API_URL}/auth`, formData)
     .then(res => res.data)
     .then(res => {
@@ -183,7 +176,6 @@ const _login = (
                 data: res.message,
             }
         }
-
       if (!res?.auth_hash) {
         return Promise.reject()
       }
@@ -204,7 +196,6 @@ const _login = (
     })
 }
 export const login = apiMethod<typeof _login>(_login, { authRequired: false })
-
 const _whatsappSignUp = (
     _: IApiMethodArguments,
     data: {
@@ -227,9 +218,7 @@ const _whatsappSignUp = (
        }
      )
   }
-
   export const whatsappSignUp = apiMethod<typeof _whatsappSignUp>(_whatsappSignUp, { authRequired: false })
-
 const _googleLogin = (
   { formData }: IApiMethodArguments,
   auth: {
@@ -246,7 +235,7 @@ const _googleLogin = (
       auth_hash: string | null
   },
 ): Promise<{ user: IUser, tokens: ITokens } | null> => {
-  console.log(auth)
+  logger.debug('Google authentication data:', auth)
   if(auth.auth_hash === null) {
     addToFormData(formData, {
       ...auth.data,
@@ -291,14 +280,12 @@ const _googleLogin = (
   }
 }
 export const googleLogin = apiMethod<typeof _googleLogin>(_googleLogin, { authRequired: false })
-
 const _logout = (
   { formData }: IApiMethodArguments,
 ): Promise<any> => {
   return axios.post(`${Config.API_URL}/logout/?`)
 }
 export const logout = apiMethod<typeof _logout>(_logout, { authRequired: false })
-
 const _checkConfig = (
   { formData }: IApiMethodArguments,
   config: string,
@@ -306,7 +293,6 @@ const _checkConfig = (
   return axios.get(`${Config.API_URL}`, { params: { config } })
 }
 export const checkConfig = apiMethod<typeof _checkConfig>(_checkConfig, { authRequired: false })
-
 async function _postDrive(
   { formData }: IApiMethodArguments,
   data: IOrder,
@@ -317,7 +303,6 @@ async function _postDrive(
   const defaults: Partial<IOrder> = {
     b_payment_way: EPaymentWays.Cash,
   }
-
   const converted = reverseConvertOrder({ ...defaults, ...data })
   addToFormData(formData, {
     data: JSON.stringify(Object.fromEntries(
@@ -349,7 +334,6 @@ async function _postDrive(
       ].filter(key => key in converted).map(key => [key, converted[key]]),
     )),
   })
-
   const response = await axios.post(`${Config.API_URL}/drive`, formData)
   if (response.data.status === 'error')
     throw response.data
@@ -357,7 +341,6 @@ async function _postDrive(
   return { ...result, b_id: result.b_id.toString() }
 }
 export const postDrive = apiMethod<typeof _postDrive>(_postDrive)
-
 const _postTrip = (
   { formData }: IApiMethodArguments,
   data: ITrip,
@@ -367,12 +350,10 @@ const _postTrip = (
   addToFormData(formData, {
     data: JSON.stringify(reverseConvertTrip(data)),
   })
-
   return axios.post(`${Config.API_URL}/trip`, formData)
     .then(res => res.data)
 }
 export const postTrip = apiMethod<typeof _postTrip>(_postTrip)
-
 const _cancelDrive = (
   { formData }: IApiMethodArguments,
   id: IOrder['b_id'],
@@ -382,12 +363,10 @@ const _cancelDrive = (
     action: EBookingActions.SetCancelState,
     reason,
   })
-
   return axios.post(`${Config.API_URL}/drive/get/${id}`, formData)
     .then(res => res.data)
 }
 export const cancelDrive = apiMethod<typeof _cancelDrive>(_cancelDrive)
-
 const _editCar = (
   { formData }: IApiMethodArguments,
   data: any,
@@ -396,18 +375,14 @@ const _editCar = (
   addToFormData(formData, { data: JSON.stringify(payload) })
   return axios.post(`${Config.API_URL}/car/${c_id}`, formData)
 }
-
 export const editCar = apiMethod<typeof _editCar>(_editCar)
-
 const _getUserCars = (
   { formData }: IApiMethodArguments,
 ): Promise<any> => {
   return axios.post(`${Config.API_URL}/user/authorized/car`, formData)
     .then(res => Object.values(res?.data?.data?.car || {}))
 }
-
 export const getUserCars = apiMethod<typeof _getUserCars>(_getUserCars)
-
 async function _getUserDrivenCar(
   { formData }: IApiMethodArguments,
 ): Promise<ICar> {
@@ -417,10 +392,8 @@ async function _getUserDrivenCar(
   )
   return Object.values(data.data.car)[0] as ICar
 }
-
 export const getUserDrivenCar =
   apiMethod<typeof _getUserDrivenCar>(_getUserDrivenCar)
-
 const _getCar = (
   { formData }: IApiMethodArguments,
   id: ICar['c_id'],
@@ -430,7 +403,6 @@ const _getCar = (
     .then(res => (res.car && res.car[id] && convertCar(res.car[id])) || null)
 }
 export const getCar = apiMethod<typeof _getCar>(_getCar)
-
 const _getCars = (
   { formData }: IApiMethodArguments,
   ids: IUser['u_id'][],
@@ -440,20 +412,16 @@ const _getCars = (
     .then(res => Object.values(res.car).map(i => convertCar(i)))
 }
 export const getCars = apiMethod<typeof _getCars>(_getCars)
-
 const _getOrders = (
   { formData }: IApiMethodArguments,
   type: EOrderTypes = EOrderTypes.Active,
 ): Promise<IOrder[]> => {
   const userID = userSelectors.user(store.getState())?.u_id
-
   addToFormData(formData, {
     array_type: 'list',
   })
-
   const hiddenOrders = JSON.parse(localStorage.getItem('hiddenOrders') || '{}')
   const userHiddenOrders = hiddenOrders && userID && hiddenOrders[userID]
-
   let URLAdditionalPath
   switch (type) {
     case EOrderTypes.Active:
@@ -468,7 +436,6 @@ const _getOrders = (
     default:
       return Promise.reject()
   }
-
   return axios.post(`${Config.API_URL}/drive${URLAdditionalPath}`, formData)
     .then(res => res.data)
       .then(res => {
@@ -493,7 +460,6 @@ const _getOrders = (
     )
 }
 export const getOrders = apiMethod<typeof _getOrders>(_getOrders)
-
 const _getTrips = (
   { formData }: IApiMethodArguments,
   type: EOrderTypes = EOrderTypes.Active,
@@ -501,7 +467,6 @@ const _getTrips = (
   addToFormData(formData, {
     array_type: 'list',
   })
-
   return axios.post(`${Config.API_URL}/trip`, formData)
     .then(res => res.data)
     .then(res =>
@@ -515,8 +480,6 @@ const _getTrips = (
     )
 }
 export const getTrips = apiMethod<typeof _getTrips>(_getTrips)
-
-
 const _getWashTrips = (
   { formData }: IApiMethodArguments,
   type: EOrderTypes = EOrderTypes.Active,
@@ -524,7 +487,6 @@ const _getWashTrips = (
   addToFormData(formData, {
     array_type: 'list',
   })
-
   return axios.post(`${Config.API_URL}/trip/get`, formData)
     .then(res => res.data)
     .then(res =>
@@ -538,7 +500,6 @@ const _getWashTrips = (
     )
 }
 export const getWashTrips = apiMethod<typeof _getWashTrips>(_getWashTrips, { authRequired: false })
-
 const _getOrder = (
   { formData }: IApiMethodArguments,
   id: IOrder['b_id'],
@@ -548,7 +509,6 @@ const _getOrder = (
     .then(res => (res.booking && res.booking[id] && convertOrder(res.booking[id])) || null)
 }
 export const getOrder = apiMethod<typeof _getOrder>(_getOrder)
-
 const _editOrder = (
   { formData }: IApiMethodArguments,
   id: IOrder['b_id'],
@@ -558,12 +518,10 @@ const _editOrder = (
     action: EBookingActions.Edit,
     data: JSON.stringify(data),
   })
-
   return axios.post(`${Config.API_URL}/drive/get/${id}`, formData)
     .then(res => res.data)
 }
 export const editOrder = apiMethod<typeof _editOrder>(_editOrder)
-
 const _getUserCar = (
   { formData }: IApiMethodArguments,
   id: IUser['u_id'],
@@ -571,13 +529,11 @@ const _getUserCar = (
   addToFormData(formData, {
     array_type: 'list',
   })
-
   return axios.post(`${Config.API_URL}/user/${id}/car`, formData)
     .then(res => res.data.data)
     .then(res => (res.car && res.car[0]) || null)
 }
 export const getUserCar = apiMethod<typeof _getUserCar>(_getUserCar)
-
 const _takeOrder = (
   { formData }: IApiMethodArguments,
   id: IOrder['b_id'],
@@ -600,11 +556,9 @@ const _takeOrder = (
   if (!userID) {
       Promise.reject(t(TRANSLATION.WRONG_USER_ROLE))
   }
-
   return getUserCar(userID as string)
     .then(car => {
       if (!car) return Promise.reject(t(TRANSLATION.NOT_LINKED_CAR))
-
       addToFormData(formData, {
         action: EBookingActions.SetPerformer,
         performer: candidate ? '0' : '1',
@@ -615,14 +569,12 @@ const _takeOrder = (
           c_options: { performers_price: options.performers_price },
         }),
       })
-
       return axios.post(`${Config.API_URL}/drive/get/${id}`, formData)
         .then(res => res.data)
         .then(res => res.status === 'error' ? Promise.reject(res.message) : res)
     })
 }
 export const takeOrder = apiMethod<typeof _takeOrder>(_takeOrder)
-
 const _chooseCandidate = (
   { formData }: IApiMethodArguments,
   id: IOrder['b_id'],
@@ -630,19 +582,16 @@ const _chooseCandidate = (
 ): Promise<any> => {
   const userID = userSelectors.user(store.getState())?.u_id
   if (!userID) Promise.reject(t(TRANSLATION.WRONG_USER_ROLE))
-
   addToFormData(formData, {
     action: EBookingActions.SetPerformer,
     performer: '1',
     u_id: user,
   })
-
   return axios.post(`${Config.API_URL}/drive/get/${id}`, formData)
     .then(res => res.data)
     .then(res => res.status === 'error' ? Promise.reject() : res)
 }
 export const chooseCandidate = apiMethod<typeof _chooseCandidate>(_chooseCandidate)
-
 const _setOrderState = (
   { formData }: IApiMethodArguments,
   id: IOrder['b_id'],
@@ -662,35 +611,36 @@ const _setOrderState = (
     default:
       return Promise.reject()
   }
-
   addToFormData(formData, {
     action,
   })
-
   return axios.post(`${Config.API_URL}/drive/get/${id}`, formData)
     .then(res => res.data)
     .then(res => res.status === 'error' ? Promise.reject() : res)
 }
 export const setOrderState = apiMethod<typeof _setOrderState>(_setOrderState)
-
 const _setOrderRating = (
   { formData }: IApiMethodArguments,
   id: IOrder['b_id'],
   value: number,
+  tips?: number,
+  comment?: string,
 ) => {
   addToFormData(formData, {
     action: EBookingActions.SetRate,
     value,
+    tips: tips || 0,
+    comment: comment || '',
   })
-
   return axios.post(`${Config.API_URL}/drive/get/${id}`, formData)
     .then(res => res.data)
 }
 /**
  * @param value rating from 1 till 5
+ * @param tips optional tips amount
+ * @param comment optional comment
  */
 export const setOrderRating = apiMethod<typeof _setOrderRating>(_setOrderRating)
-
 const _getUser = (
   { formData }: IApiMethodArguments,
   id: IUser['u_id'],
@@ -700,7 +650,6 @@ const _getUser = (
     .then(res => convertUser(res.user[id]) || null)
 }
 export const getUser = apiMethod<typeof _getUser>(_getUser)
-
 const _getUsers = (
   { formData }: IApiMethodArguments,
   ids: IUser['u_id'][],
@@ -710,7 +659,6 @@ const _getUsers = (
     .then(res => Object.values(res.user).map(i => convertUser(i)))
 }
 export const getUsers = apiMethod<typeof _getUsers>(_getUsers)
-
 const _getAuthorizedUser = (
   { formData }: IApiMethodArguments,
 ): Promise<IUser | null> => {
@@ -719,28 +667,24 @@ const _getAuthorizedUser = (
     .then(res => convertUser(Object.values(res.user)[0] as IUser) || null)
 }
 export const getAuthorizedUser = apiMethod<typeof _getAuthorizedUser>(_getAuthorizedUser)
-
 const _editUser = (
   { formData }: IApiMethodArguments,
   data: Partial<IUser>,
 ) => {
-  // @TODO вернуть u_city когда наладим автозаполнение
   const { token, u_hash, u_id, u_city, ...userData } = data
   if (token && u_hash && u_id) addToFormData(formData, { token, u_hash, u_id })
-    console.log('formData', formData,data)
+    logger.debug('Preparing form data for submission', { hasFormData: !!formData, dataKeys: Object.keys(data) })
   addToFormData(formData, {
     data: JSON.stringify({
         u_city: u_city || undefined,
         ...reverseConvertUser(userData)
     }),
   })
-
   return axios.post(`${Config.API_URL}/user`, formData)
     .then(res => res.data)
 }
 export const editUser = apiMethod<typeof _editUser>(_editUser)
 export const editUserAfterRegister = apiMethod<typeof _editUser>(_editUser, { authRequired: false })
-
 const _getImageBlob = (
   { formData }: IApiMethodArguments,
   id: number,
@@ -752,7 +696,6 @@ const _getImageBlob = (
   })
 }
 export const getImageBlob = apiMethod<typeof _getImageBlob>(_getImageBlob)
-
 const _getImageFile = (
   { formData }: IApiMethodArguments,
   id: number,
@@ -764,7 +707,6 @@ const _getImageFile = (
   })
 }
 export const getImageFile = apiMethod<typeof _getImageFile>(_getImageFile)
-
 const _setOutDrive = (
   { formData }: IApiMethodArguments,
   isFinished: boolean,
@@ -796,12 +738,10 @@ const _setOutDrive = (
         },
     ),
   })
-
   return axios.post(`${Config.API_URL}/user`, formData)
     .then(res => res.data)
 }
 export const setOutDrive = apiMethod<typeof _setOutDrive>(_setOutDrive)
-
 const _remindPassword = (
   { formData }: IApiMethodArguments,
   email: IUser['u_email'],
@@ -809,13 +749,11 @@ const _remindPassword = (
   addToFormData(formData, {
     u_email: email,
   })
-
   return axios.post(`${Config.API_URL}/remind`, formData)
     .then(res => res.data)
     .then(res => res.status === 'error' ? Promise.reject() : res)
 }
 export const remindPassword = apiMethod<typeof _remindPassword>(_remindPassword, { authRequired: false })
-
 const _setWaitingTime = (
   { formData }: IApiMethodArguments,
   id: IOrder['b_id'],
@@ -827,7 +765,6 @@ const _setWaitingTime = (
     previous,
     additional,
   })
-
   return axios.post(`${Config.API_URL}/drive/get/${id}`, formData)
     .then(res => res.data)
 }
@@ -836,13 +773,11 @@ const _setWaitingTime = (
  * @param previous actual waiting time
  */
 export const setWaitingTime = apiMethod<typeof _setWaitingTime>(_setWaitingTime)
-
 export const reverseGeocode = (
   lat: ValueOf<Stringify<IBookingCoordinatesLatitude>>,
   lng: ValueOf<Stringify<IBookingCoordinatesLongitude>>,
 ): Promise<IPlaceResponse> => {
   const language = configSelectors.language(store.getState())
-
   return axios.get(
     'https://nominatim.openstreetmap.org/reverse',
     {
@@ -856,13 +791,10 @@ export const reverseGeocode = (
   )
     .then(res => res.data)
 }
-
-
 export const geocode = (
   query: string,
 ): Promise<IPlaceResponse | null> => {
   const language = configSelectors.language(store.getState())
-
   return axios.get(
     'https://nominatim.openstreetmap.org/search',
     {
@@ -879,13 +811,9 @@ export const geocode = (
             ({ ...res.data[0], lat: parseFloat(res.data[0].lat), lon: parseFloat(res.data[0].lon) }),
     )
 }
-
-
-const orsToken = '5b3ce3597851110001cf6248b6254554dbfc488a8585d67081a4000f'
-
+const orsToken = process.env.REACT_APP_ORS_TOKEN || ''
 export const makeRoutePoints = (from: IAddressPoint, to: IAddressPoint): Promise<IRouteInfo> => {
   const convertPoint = (point: IAddressPoint) => `${point.longitude},${point.latitude}`
-
   return axios.get(
     'https://api.openrouteservice.org/v2/directions/driving-car',
     {
@@ -911,10 +839,8 @@ export const makeRoutePoints = (from: IAddressPoint, to: IAddressPoint): Promise
       }
     })
 }
-
 export const notifyPosition = (point: IAddressPoint) => {
   const userID = userSelectors.user(store.getState())?.u_id
-
   axios.post('http://jecat.ru/car_api/api/notifypos.php', {
     driver: userID,
     lat: point.latitude,
@@ -922,7 +848,6 @@ export const notifyPosition = (point: IAddressPoint) => {
     time: new Date().getTime() / 1000,
   })
 }
-
 export const getPointSuggestions = async(targetString?: string, isIntercity?: boolean): Promise<ISuggestion[]> => {
   const commonSuggestions: ISuggestion[] =
         getHints(targetString)
@@ -944,13 +869,10 @@ export const getPointSuggestions = async(targetString?: string, isIntercity?: bo
   if (!targetString) {
     return commonSuggestions
   }
-
   try {
     const language = configSelectors.language(store.getState())
-
     let coords: [number, number],
       country: string | undefined
-
     try {
       coords = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
@@ -962,9 +884,9 @@ export const getPointSuggestions = async(targetString?: string, isIntercity?: bo
         )
       })
     } catch (error) {
+      handleError(error, 'getting user coordinates')
       coords = SITE_CONSTANTS.DEFAULT_POSITION
     }
-
     if (isIntercity) {
       try {
         country = getCountryISO3(
@@ -973,10 +895,10 @@ export const getPointSuggestions = async(targetString?: string, isIntercity?: bo
           ).address.country_code,
         ) || SITE_CONSTANTS.DEFAULT_COUNTRY
       } catch (error) {
+        handleError(error, 'reverse geocoding for country')
         country = SITE_CONSTANTS.DEFAULT_COUNTRY
       }
     }
-
     const officialSuggestions = await axios.get(
       'https://geocode.search.hereapi.com/v1/autosuggest',
       {
@@ -984,14 +906,13 @@ export const getPointSuggestions = async(targetString?: string, isIntercity?: bo
           q: targetString.toString(),
           at: isIntercity ? `${coords[0]},${coords[1]}` : undefined,
           in: isIntercity ? `countryCode:${country}` : `circle:${coords};r=${SITE_CONSTANTS.SEARCH_RADIUS * 1000}`,
-          apiKey: 'cBumVVL0YkHvynJZNIL3SRtUfgxnEtPpXhvUVcE6Uh0',
+          apiKey: process.env.REACT_APP_HERE_API_KEY || '',
           lang: language.iso,
           limit: 3,
         },
       },
     )
       .then(res => res.data)
-
     return officialSuggestions.items ?
       commonSuggestions.concat(
         officialSuggestions.items
@@ -1013,15 +934,17 @@ export const getPointSuggestions = async(targetString?: string, isIntercity?: bo
       ) :
       commonSuggestions
   } catch (error) {
-    console.error(error)
+    handleError(error, 'fetching address suggestions')
     return commonSuggestions
   }
 }
-
 export const activateChatServer = () => {
   return axios.get('https://chat.itest24.com/wschat/checksrv.php', {
     params: {
       s: 1,
     },
-  }).catch(error => console.error(error))
+  }).catch(error => {
+    console.error('Error activating chat server:', error)
+    throw error
+  })
 }

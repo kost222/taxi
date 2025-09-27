@@ -98,7 +98,7 @@
 
   &__time-icon {
     width: 24px;
-    stroke: var(#{Theme.$icon});
+    stroke: #666;
   }
 
   &__car-class {
@@ -124,12 +124,12 @@
 
   &__car-nearby-icon {
     width: 16px;
-    stroke: var(#{Theme.$foreground})
+    stroke: #333;
   }
 
   &__waiting-time-icon {
     width: 16px;
-    stroke: var(#{Theme.$icon})
+    stroke: #666;
   }
 
   &__car-nearby-info-text {

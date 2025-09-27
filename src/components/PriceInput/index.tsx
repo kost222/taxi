@@ -75,22 +75,40 @@ function PriceInput({
           style={EInputStyles.RedDesign}
         />
       , [active === 0 && payment])}
-      {useMemo(() => new Array(3).fill(0).map((_, index) =>
-        <PriceInputItem
-          key={index + 1}
-          active={active === index + 1}
-          setActive={() => setActive(index + 1)}
-          inputProps={{
-            value: undefined,
-            placeholder: t(TRANSLATION.CUSTOMER_PRICE),
-          }}
-          fieldWrapperClassName={cn('price-input__segment', {
-            'price-input__segment--active': active === index + 1,
-          })}
-          inputType={EInputTypes.Number}
-          style={EInputStyles.RedDesign}
-        />,
-      ), [active])}
+      {useMemo(() => {
+        // Предлагаемые варианты цен: -10%, текущая цена, +10%, +20%
+        const priceVariants = [
+          Math.round(payment * 0.9), // -10%
+          Math.round(payment * 1.1), // +10%
+          Math.round(payment * 1.2), // +20%
+        ]
+
+        return priceVariants.map((price, index) =>
+          <PriceInputItem
+            key={index + 1}
+            active={active === index + 1}
+            setActive={() => {
+              setActive(index + 1)
+              setCustomerPrice(price)
+            }}
+            inputProps={{
+              value: price,
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                const newValue = parseInt(e.target.value) || 0
+                setCustomerPrice(newValue)
+              },
+              placeholder: t(TRANSLATION.CUSTOMER_PRICE),
+            }}
+            fieldWrapperClassName={cn('price-input__segment', {
+              'price-input__segment--active': active === index + 1,
+              'price-input__segment--lower': price < payment,
+              'price-input__segment--higher': price > payment,
+            })}
+            inputType={EInputTypes.Number}
+            style={EInputStyles.RedDesign}
+          />,
+        )
+      }, [active, payment, setCustomerPrice])}
     </div>
   )
 }

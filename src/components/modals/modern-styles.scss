@@ -1,0 +1,497 @@
+// Современный дизайн модальных окон в соответствии с Figma макетом
+
+@import '../../styles/variables';
+
+// Основные переменные дизайна
+$modal-radius: 24px;
+$modal-padding: 20px;
+$modal-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+$primary-red: #FF3B30;
+$primary-orange: #FF6B35;
+$background-light: #F5F5F7;
+$text-primary: #1C1C1E;
+$text-secondary: #8E8E93;
+$border-light: #E5E5EA;
+
+// Обновленный оверлей
+.overlay {
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  animation: fadeIn 0.2s ease;
+
+  &__wrapper {
+    position: fixed;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1500;
+    padding: 20px;
+
+    &--active {
+      display: flex;
+    }
+  }
+}
+
+// Базовые стили модального окна
+.modal {
+  z-index: 1600;
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  border-radius: $modal-radius;
+  box-shadow: $modal-shadow;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+
+  &--modern {
+    padding: 0;
+
+    .modal__header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid $border-light;
+      position: relative;
+
+      &-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: $text-primary;
+        margin: 0;
+        text-align: center;
+      }
+
+      &-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: $background-light;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+
+        &:hover {
+          background: darken($background-light, 5%);
+          transform: scale(1.05);
+        }
+
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          width: 14px;
+          height: 2px;
+          background: $text-secondary;
+          border-radius: 1px;
+        }
+
+        &::before {
+          transform: rotate(45deg);
+        }
+
+        &::after {
+          transform: rotate(-45deg);
+        }
+      }
+    }
+
+    .modal__content {
+      padding: $modal-padding;
+    }
+
+    .modal__footer {
+      padding: 16px 20px 20px;
+      border-top: 1px solid $border-light;
+      display: flex;
+      gap: 12px;
+
+      .button {
+        flex: 1;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &--primary {
+          background: linear-gradient(135deg, $primary-red 0%, $primary-orange 100%);
+          color: white;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba($primary-red, 0.3);
+          }
+
+          &:active {
+            transform: translateY(0);
+          }
+        }
+
+        &--secondary {
+          background: $background-light;
+          color: $text-primary;
+
+          &:hover {
+            background: darken($background-light, 5%);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Список с чекбоксами (как в дизайне)
+.modal__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  &-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid $border-light;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: $background-light;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &-checkbox {
+      width: 24px;
+      height: 24px;
+      border: 2px solid $border-light;
+      border-radius: 50%;
+      margin-right: 16px;
+      position: relative;
+      transition: all 0.2s;
+
+      &--checked {
+        background: $primary-red;
+        border-color: $primary-red;
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 8px;
+          height: 8px;
+          background: white;
+          border-radius: 50%;
+        }
+      }
+    }
+
+    &-text {
+      flex: 1;
+      font-size: 16px;
+      color: $text-primary;
+    }
+
+    &-icon {
+      width: 20px;
+      height: 20px;
+      margin-left: 12px;
+      opacity: 0.5;
+    }
+  }
+}
+
+// Поля ввода в модальном окне
+.modal__input {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid $border-light;
+  border-radius: 12px;
+  font-size: 16px;
+  color: $text-primary;
+  background: white;
+  transition: all 0.2s;
+  margin-bottom: 16px;
+
+  &::placeholder {
+    color: $text-secondary;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-red;
+    box-shadow: 0 0 0 3px rgba($primary-red, 0.1);
+  }
+
+  &--error {
+    border-color: $primary-red;
+    background: rgba($primary-red, 0.05);
+  }
+}
+
+// Информационные блоки
+.modal__info {
+  padding: 16px;
+  background: $background-light;
+  border-radius: 12px;
+  margin-bottom: 16px;
+
+  &-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 50%;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      color: $primary-red;
+    }
+  }
+
+  &-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: $text-primary;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  &-text {
+    font-size: 14px;
+    color: $text-secondary;
+    text-align: center;
+    line-height: 1.5;
+  }
+}
+
+// Карточки выбора (как транспорт в дизайне)
+.modal__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+
+  &-item {
+    padding: 16px;
+    background: white;
+    border: 2px solid $border-light;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+
+    &:hover {
+      border-color: $primary-red;
+      transform: translateY(-2px);
+    }
+
+    &--active {
+      background: linear-gradient(135deg, rgba($primary-red, 0.1) 0%, rgba($primary-orange, 0.1) 100%);
+      border-color: $primary-red;
+    }
+
+    &-icon {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+
+    &-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: $text-primary;
+      margin-bottom: 4px;
+    }
+
+    &-price {
+      font-size: 12px;
+      color: $text-secondary;
+    }
+  }
+}
+
+// Таймер обратного отсчета
+.modal__timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+
+  &-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $primary-red 0%, $primary-orange 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba($primary-red, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+
+    &-text {
+      font-size: 36px;
+      font-weight: 700;
+      color: white;
+    }
+
+    &-unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(white, 0.8);
+      margin-left: 4px;
+    }
+  }
+}
+
+// Анимации
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+// Адаптивность
+@media (max-width: 480px) {
+  .overlay__wrapper {
+    padding: 0;
+  }
+
+  .modal {
+    max-width: 100%;
+    border-radius: $modal-radius $modal-radius 0 0;
+    margin-top: auto;
+  }
+
+  .modal__cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Темная тема
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: #1C1C1E;
+
+    .modal__header {
+      border-bottom-color: #38383A;
+
+      &-title {
+        color: white;
+      }
+
+      &-close {
+        background: #2C2C2E;
+
+        &::before,
+        &::after {
+          background: #8E8E93;
+        }
+      }
+    }
+
+    .modal__content {
+      color: white;
+    }
+
+    .modal__footer {
+      border-top-color: #38383A;
+    }
+
+    .modal__input {
+      background: #2C2C2E;
+      border-color: #38383A;
+      color: white;
+
+      &::placeholder {
+        color: #8E8E93;
+      }
+    }
+
+    .modal__info {
+      background: #2C2C2E;
+
+      &-title {
+        color: white;
+      }
+    }
+
+    .modal__list-item {
+      border-bottom-color: #38383A;
+
+      &:hover {
+        background: #2C2C2E;
+      }
+
+      &-text {
+        color: white;
+      }
+    }
+
+    .modal__cards-item {
+      background: #2C2C2E;
+      border-color: #38383A;
+
+      &-name {
+        color: white;
+      }
+    }
+  }
+}

@@ -20,8 +20,6 @@ import { GoogleLoginButton } from 'react-social-login-buttons'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { modalsActionCreators,  modalsSelectors } from '../../../state/modals'
 import { Input } from './elements'
-
-
 const mapStateToProps = (state: IRootState) => ({
   user: userSelectors.user(state),
   status: userSelectors.status(state),
@@ -29,7 +27,6 @@ const mapStateToProps = (state: IRootState) => ({
   message: userSelectors.message(state),
   isWAOpen: modalsSelectors.isWACodeModalOpen,
 })
-
 const mapDispatchToProps = {
   login: userActionCreators.login,
   setLoginModal: modalsActionCreators.setLoginModal,
@@ -42,20 +39,15 @@ const mapDispatchToProps = {
   setWAOpen: modalsActionCreators.setWACodeModal,
   setRefOpen: modalsActionCreators.setRefCodeModal,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IFormValues {
     login: string | undefined,
     password?: string | undefined,
     type: ERegistrationType
 }
-
 interface IProps extends ConnectedProps<typeof connector> {
     isOpen: boolean,
 }
-
-
 const LoginForm: React.FC<IProps> = ({
   user,
   status,
@@ -79,11 +71,9 @@ const LoginForm: React.FC<IProps> = ({
   const location = useLocation()
   const navigate = useNavigate()
   const googleClientId = '973943716904-b33r11ijgi08m5etsg5ndv409shh1tjl.apps.googleusercontent.com'
-
   const role = !location.pathname.includes('/driver-order') ?
     EUserRoles.Client :
     EUserRoles.Driver
-
   const schema = yup.object({
     type: yup.string().required(),
     login: yup.string().required().when('type', {
@@ -92,8 +82,6 @@ const LoginForm: React.FC<IProps> = ({
       otherwise: yup.string().required().matches(phoneRegex, t(TRANSLATION.PHONE_PATTERN_ERROR)),
     }),
   })
-
-
   const {
     register: formRegister,
     handleSubmit,
@@ -110,7 +98,6 @@ const LoginForm: React.FC<IProps> = ({
     resolver: yupResolver(user ? yup.object() : schema),
   })
   const { login: formLogin, type } = useWatch<IFormValues>({ control })
-
   useEffect(() => {
     if (!isOpen) {
       setStatus(EStatuses.Default)
@@ -120,7 +107,6 @@ const LoginForm: React.FC<IProps> = ({
       toggleVisibility()
     }
   }, [isOpen])
-
   useEffect(() => {
     let auth_hash = getParamFromURL('auth_hash')
     if (auth_hash) {
@@ -134,7 +120,6 @@ const LoginForm: React.FC<IProps> = ({
     } else {
       let u_email = getParamFromURL('u_email')
       let u_name = getParamFromURL('u_name')
-
       if (typeof u_email === 'string' && typeof u_name === 'string') {
         setRefOpen({
           isOpen: true,
@@ -152,11 +137,9 @@ const LoginForm: React.FC<IProps> = ({
       }
     }
   }, [])
-
   useEffect(() => {
     isDirty && trigger()
   }, [type])
-
   useEffect(() => {
     if (type === ERegistrationType.Whatsapp && isPasswordVisible) {
       togglePasswordVisibility()
@@ -164,11 +147,8 @@ const LoginForm: React.FC<IProps> = ({
       togglePasswordVisibility()
     }
   }, [type])
-
-
   useEffect(() => {
     if (((status === EStatuses.Fail || status === EStatuses.Success && user)) && type !== ERegistrationType.Whatsapp && !isVisible) {
-      console.log('togglin, prev: ', isVisible)
       toggleVisibility()
     } else if (status === EStatuses.Whatsapp) {
       setLoginModal(false)
@@ -187,11 +167,8 @@ const LoginForm: React.FC<IProps> = ({
       }
     }
   }, [status]);
-
   if (tab !== LOGIN_TABS_IDS[0]) return null
-
   const onSubmit = (data: IFormValues) => {
-    console.log(status, user)
     if (isVisible) toggleVisibility()
     setDataToLogin(data)
     if (user) {
@@ -209,7 +186,6 @@ const LoginForm: React.FC<IProps> = ({
       login({...loginData, navigate: navigate})
     }
   }
-
   const getParamFromURL = (param: string) => {
     let results = new RegExp('[\?&]' + param + '=([^&#]*)').exec(window.location.href)
     if (results == null) {
@@ -218,21 +194,22 @@ const LoginForm: React.FC<IProps> = ({
       return decodeURIComponent(results[1]) || 0
     }
   }
-
   return <form
     className="login-form sign-in-subform"
     onSubmit={handleSubmit(onSubmit)}
   >
-    <Input
-      inputProps={{
-        ...formRegister('login'),
-        placeholder: type === ERegistrationType.Phone || type === ERegistrationType.Whatsapp ? t(TRANSLATION.PHONE) : t(TRANSLATION.EMAIL),
-      }}
-      label={t(TRANSLATION.LOGIN)}
-      error={errors.login?.message}
-      key={type}
-    />
-    {isPasswordVisible &&
+    {!user && (
+      <Input
+        inputProps={{
+          ...formRegister('login'),
+          placeholder: type === ERegistrationType.Phone || type === ERegistrationType.Whatsapp ? t(TRANSLATION.PHONE) : t(TRANSLATION.EMAIL),
+        }}
+        label={t(TRANSLATION.LOGIN)}
+        error={errors.login?.message}
+        key={type}
+      />
+    )}
+    {!user && isPasswordVisible &&
           <Input
             inputProps={{
               ...formRegister('password'),
@@ -264,22 +241,24 @@ const LoginForm: React.FC<IProps> = ({
             ].filter(item => Object.values(item).length)}
           />
     }
-
-    <Checkbox
-      {...formRegister('type')}
-      type="radio"
-      label={t(TRANSLATION.EMAIL)}
-      value={ERegistrationType.Email}
-      id="email"
-    />
-    <Checkbox
-      {...formRegister('type')}
-      type="radio"
-      label={'Whatsapp'}
-      value={ERegistrationType.Whatsapp}
-      id="whatsapp"
-    />
-
+    {!user && (
+      <>
+        <Checkbox
+          {...formRegister('type')}
+          type="radio"
+          label={t(TRANSLATION.EMAIL)}
+          value={ERegistrationType.Email}
+          id="email"
+        />
+        <Checkbox
+          {...formRegister('type')}
+          type="radio"
+          label={'Whatsapp'}
+          value={ERegistrationType.Whatsapp}
+          id="whatsapp"
+        />
+      </>
+    )}
     {
       isVisible &&
           <div className="alert-container">
@@ -290,7 +269,6 @@ const LoginForm: React.FC<IProps> = ({
             />
           </div>
     }
-
     {Number(role) !== EUserRoles.Driver && (
       // <LoginSocialGoogle
       //   client_id={googleClientId}
@@ -303,7 +281,7 @@ const LoginForm: React.FC<IProps> = ({
       //   // const obj = {
       //   //   u_name: data?.name,
       //   //   u_phone: '',
-      //   //   u_email: 'moj14frffefff@gmail.com',          // TODO: заменить на data?.email
+      //   //   u_email: 'moj14frffefff@gmail.com',          
       //   //   type: ERegistrationType.Email,
       //   //   u_role: EUserRoles.Client,
       //   //   ref_code: '',
@@ -312,26 +290,26 @@ const LoginForm: React.FC<IProps> = ({
       //   // }
       //   //googleLogin(obj)
       //   }}
-      //   onReject={err => {
-      //     console.log(err)
+      //   onReject={error => {
+      //     console.log(error)
       //   }}
       // >
       <a href={`https://accounts.google.com/o/oauth2/v2/auth?response_type=code&access_type=offline&client_id=${googleClientId}&redirect_uri=${Config.SERVER_URL}/google/&state&scope=email%20profile&prompt=select_account`}>
         <GoogleLoginButton />
       </a>
-
     )}
-
-    <Button
-      type="submit"
-      text={!!user ? t(TRANSLATION.LOGOUT) : t(TRANSLATION.SIGN_IN)}
-      fixedSize={false}
-      className="login-modal_login-btn"
-      skipHandler={true}
-      disabled={!!Object.values(errors).length}
-      status={status}
-    />
+    {/* Only show button when user is logged in or when login form is valid */}
+    {(!!user || !Object.values(errors).length) && (
+      <Button
+        type="submit"
+        text={!!user ? t(TRANSLATION.LOGOUT) : t(TRANSLATION.SIGN_IN)}
+        fixedSize={false}
+        className="login-modal_login-btn"
+        skipHandler={true}
+        disabled={!!user ? false : !!Object.values(errors).length}
+        status={status}
+      />
+    )}
   </form>
 }
-
 export default connector(LoginForm)

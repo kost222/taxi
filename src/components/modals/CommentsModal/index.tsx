@@ -1,4 +1,4 @@
-import React, { useId } from 'react'
+import React, { useId, useState, useRef } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { connect, ConnectedProps } from 'react-redux'
 import { EBookingCommentTypes } from '../../../types/types'
@@ -13,6 +13,7 @@ import { modalsActionCreators, modalsSelectors } from '../../../state/modals'
 import Checkbox, { ECheckboxStyles } from '../../Checkbox'
 import Input, { EInputStyles } from '../../Input'
 import Button, { EButtonStyles } from '../../Button'
+import { showWarning } from '../../../utils/notifications'
 import Modal, { EModalStyles } from '../Modal'
 import './styles.scss'
 
@@ -37,17 +38,39 @@ interface IFormValues {
   placard: string,
 }
 
+interface ISpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: any) => void;
+  onerror: (event: any) => void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => ISpeechRecognition;
+    webkitSpeechRecognition: new () => ISpeechRecognition;
+  }
+}
+
 function CommentsModal({
   isOpen,
   comments,
   setComments,
   setCommentsModal,
 }: IProps) {
+  const [isListening, setIsListening] = useState(false)
+  const recognitionRef = useRef<ISpeechRecognition | null>(null)
+
   const {
     register,
     formState: { errors, isValid },
     handleSubmit,
     control,
+    setValue,
+    getValues
   } = useForm<IFormValues>({
     criteriaMode: 'all',
     mode: 'onChange',
@@ -60,6 +83,42 @@ function CommentsModal({
   })
 
   const { ids, ...values } = useWatch<IFormValues>({ control })
+
+  const startVoiceRecognition = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      showWarning('Распознавание речи не поддерживается в вашем браузере')
+      return
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    const recognition = new SpeechRecognition()
+    recognitionRef.current = recognition
+
+    recognition.continuous = false
+    recognition.interimResults = false
+    recognition.lang = 'ru-RU'
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript
+      const currentValue = getValues('custom')
+      setValue('custom', currentValue ? `${currentValue} ${transcript}` : transcript)
+      setIsListening(false)
+    }
+
+    recognition.onerror = () => {
+      setIsListening(false)
+    }
+
+    recognition.start()
+    setIsListening(true)
+  }
+
+  const stopVoiceRecognition = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      setIsListening(false)
+    }
+  }
 
   const onSubmit = () => {
     if (!ids) return
@@ -123,21 +182,44 @@ function CommentsModal({
           </div>
         }
 
-        <Input
-          inputProps={{
-            ...register('custom'),
-            placeholder: t(TRANSLATION.CUSTOM_COMMENT),
-          }}
-          style={EInputStyles.RedDesign}
-        />
+        <div style={{ position: 'relative' }}>
+          <Input
+            inputProps={{
+              ...register('custom'),
+              placeholder: t(TRANSLATION.CUSTOM_COMMENT),
+            }}
+            style={EInputStyles.RedDesign}
+          />
+          <button
+            type="button"
+            onClick={isListening ? stopVoiceRecognition : startVoiceRecognition}
+            style={{
+              position: 'absolute',
+              right: '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: isListening ? '#ff4444' : '#4CAF50',
+              border: 'none',
+              borderRadius: '50%',
+              width: '30px',
+              height: '30px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white'
+            }}
+            title={isListening ? 'Stop recording' : 'Start voice input'}
+          >
+            {isListening ? '⏹' : '🎤'}
+          </button>
+        </div>
         <Button
           type="submit"
           buttonStyle={EButtonStyles.RedDesign}
           checkLogin={false}
           text={t(TRANSLATION.OK)}
         />
-        {/* TODO voice recognition */}
-        {/* TODO add icon */}
       </form>
     </Modal>
   )

@@ -1,0 +1,407 @@
+// Import the design system
+@import './design-system';
+
+// ============================================
+// GLOBAL STYLES
+// ============================================
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-family-primary;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: $text-primary;
+  background-color: $bg-secondary;
+  min-height: 100vh;
+}
+
+// ============================================
+// TYPOGRAPHY
+// ============================================
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  color: $text-primary;
+  margin-bottom: $spacing-md;
+}
+
+h1 { font-size: $font-size-4xl; }
+h2 { font-size: $font-size-3xl; }
+h3 { font-size: $font-size-2xl; }
+h4 { font-size: $font-size-xl; }
+h5 { font-size: $font-size-lg; }
+h6 { font-size: $font-size-base; }
+
+p {
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+a {
+  color: $secondary-blue;
+  text-decoration: none;
+  transition: $transition-base;
+
+  &:hover {
+    color: $secondary-blue-dark;
+    text-decoration: underline;
+  }
+}
+
+// ============================================
+// FORMS
+// ============================================
+
+.form-group {
+  margin-bottom: $spacing-lg;
+}
+
+label {
+  @include label;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select {
+  @include input-field;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-error {
+  display: block;
+  color: $error-red;
+  font-size: $font-size-sm;
+  margin-top: $spacing-xs;
+}
+
+.form-hint {
+  display: block;
+  color: $text-tertiary;
+  font-size: $font-size-sm;
+  margin-top: $spacing-xs;
+}
+
+// ============================================
+// BUTTONS
+// ============================================
+
+.btn {
+  @include button-base;
+
+  &--primary {
+    @include button-primary;
+  }
+
+  &--secondary {
+    @include button-secondary;
+  }
+
+  &--success {
+    @include button-base;
+    background-color: $success-green;
+    color: $text-inverse;
+
+    &:hover:not(:disabled) {
+      background-color: $success-green-dark;
+    }
+  }
+
+  &--warning {
+    @include button-base;
+    background-color: $warning-amber;
+    color: $text-inverse;
+
+    &:hover:not(:disabled) {
+      background-color: $warning-amber-dark;
+    }
+  }
+
+  &--danger {
+    @include button-base;
+    background-color: $error-red;
+    color: $text-inverse;
+
+    &:hover:not(:disabled) {
+      background-color: $error-red-dark;
+    }
+  }
+
+  &--ghost {
+    @include button-base;
+    background-color: transparent;
+    color: $text-primary;
+
+    &:hover:not(:disabled) {
+      background-color: $bg-tertiary;
+    }
+  }
+
+  &--small {
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-sm;
+  }
+
+  &--large {
+    padding: $spacing-md $spacing-lg;
+    font-size: $font-size-lg;
+  }
+
+  &--block {
+    width: 100%;
+  }
+}
+
+// ============================================
+// CARDS
+// ============================================
+
+.card {
+  @include card;
+
+  &__header {
+    margin-bottom: $spacing-md;
+    padding-bottom: $spacing-md;
+    border-bottom: 1px solid $border-light;
+  }
+
+  &__title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    margin-bottom: 0;
+  }
+
+  &__subtitle {
+    color: $text-secondary;
+    font-size: $font-size-sm;
+    margin-top: $spacing-xs;
+  }
+
+  &__body {
+    // Content area
+  }
+
+  &__footer {
+    margin-top: $spacing-md;
+    padding-top: $spacing-md;
+    border-top: 1px solid $border-light;
+  }
+}
+
+// ============================================
+// ALERTS
+// ============================================
+
+.alert {
+  padding: $spacing-md;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-md;
+
+  &--info {
+    background-color: $secondary-blue-bg;
+    color: $secondary-blue-dark;
+    border: 1px solid $secondary-blue-light;
+  }
+
+  &--success {
+    background-color: $success-green-bg;
+    color: $success-green-dark;
+    border: 1px solid $success-green-light;
+  }
+
+  &--warning {
+    background-color: $warning-amber-bg;
+    color: $warning-amber-dark;
+    border: 1px solid $warning-amber-light;
+  }
+
+  &--error {
+    background-color: $error-red-bg;
+    color: $error-red-dark;
+    border: 1px solid $error-red-light;
+  }
+}
+
+// ============================================
+// BADGES
+// ============================================
+
+.badge {
+  display: inline-block;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  line-height: 1;
+  border-radius: $radius-full;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &--primary {
+    background-color: $primary-red;
+    color: $text-inverse;
+  }
+
+  &--secondary {
+    background-color: $gray-200;
+    color: $gray-700;
+  }
+
+  &--success {
+    background-color: $success-green;
+    color: $text-inverse;
+  }
+
+  &--warning {
+    background-color: $warning-amber;
+    color: $text-inverse;
+  }
+
+  &--error {
+    background-color: $error-red;
+    color: $text-inverse;
+  }
+}
+
+// ============================================
+// MODALS
+// ============================================
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: $bg-overlay;
+  z-index: $z-index-modal-backdrop;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background-color: $bg-primary;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-2xl;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: $z-index-modal;
+
+  &__header {
+    padding: $spacing-lg;
+    border-bottom: 1px solid $border-light;
+  }
+
+  &__body {
+    padding: $spacing-lg;
+  }
+
+  &__footer {
+    padding: $spacing-lg;
+    border-top: 1px solid $border-light;
+    display: flex;
+    gap: $spacing-md;
+    justify-content: flex-end;
+  }
+}
+
+// ============================================
+// LOADING STATES
+// ============================================
+
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid $gray-300;
+  border-top-color: $primary-red;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, $gray-200 25%, $gray-100 50%, $gray-200 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ============================================
+// UTILITIES
+// ============================================
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+
+  @include mobile {
+    padding: 0 $spacing-sm;
+  }
+}
+
+.divider {
+  height: 1px;
+  background-color: $border-light;
+  margin: $spacing-lg 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// ============================================
+// RESPONSIVE UTILITIES
+// ============================================
+
+@include mobile {
+  .hide-mobile { display: none !important; }
+}
+
+@include tablet {
+  .hide-tablet { display: none !important; }
+}
+
+@include desktop {
+  .hide-desktop { display: none !important; }
+}

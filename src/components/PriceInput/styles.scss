@@ -37,6 +37,34 @@
       width: 100%;
       display: block;
     }
+
+    &--lower {
+      .price-input__container {
+        background-color: #e8f5e9;
+        border: 1px solid #4caf50;
+
+        &::before {
+          content: '↓';
+          color: #4caf50;
+          font-weight: bold;
+          margin-right: 5px;
+        }
+      }
+    }
+
+    &--higher {
+      .price-input__container {
+        background-color: #fff3e0;
+        border: 1px solid #ff9800;
+
+        &::before {
+          content: '↑';
+          color: #ff9800;
+          font-weight: bold;
+          margin-right: 5px;
+        }
+      }
+    }
   }
 
   &__icon {

@@ -11,77 +11,94 @@ interface IProps {
   order: IOrder
 }
 
-// TODO: refactor
-const Rooms: React.FC<IProps> = ({ order }) => {
-  return order.b_options?.furniture ?
-    <div className="order-info__furniture">
-      {order.b_options.moveType === EMoveTypes.Apartament ?
-        Object.entries<TRoomFurniture>(order.b_options.furniture as IFurniture['house'])
-          .map(([roomID, room]: [string, TRoomFurniture]) => {
-            const foundRoom = rooms.find(r => r.id === +roomID) as IRoom
+interface IFurnitureDisplayItem {
+  furniture: IFurnitureItem
+  value: number
+}
 
-            return (
-              <OrderField
-                image={images.furniture}
-                alt={t(foundRoom.label)}
-                title={t(foundRoom.label)}
-                value={<>
-                  {
-                    order.b_options?.elevator?.steps[roomID] ?
-                      `${order.b_options?.elevator?.steps[roomID]} ${t(TRANSLATION.STEPS)}, ` :
-                      ''
-                  }
-                  {
-                    Object.entries<number>(
-                      room,
-                    )
-                      .filter(([key, value]) => !!value)
-                      .map(([key, value], index) => {
-                        const foundFurniture = furniture.find(i => i.id === +key) as IFurnitureItem
-                        return (
-                          <span key={key}>
-                            {index !== 0 && ', '}
-                            {
-                              <img src={foundFurniture.image} alt={t(foundFurniture.label)}/>
-                            }{
-                              t(foundFurniture.label, { toLower: true })
-                            }({value})
-                          </span>
-                        )
-                      })
-                  }
-                </>}
-              />
-            )
-          }) :
-        (
-          <OrderField
-            image={images.furniture}
-            alt={t(TRANSLATION.FURNITURE_LIST)}
-            title={t(TRANSLATION.FURNITURE_LIST)}
-            value={
-              Object.entries(
-                order.b_options.furniture,
-              )
-                .filter(([key, value]) => !!value)
-                .map(([key, value], index) => {
-                  const foundFurniture = furniture.find(i => i.id === +key) as IFurnitureItem
-                  return (
-                    <React.Fragment key={key}>
-                      {index !== 0 && ', '}
-                      {
-                        <img src={foundFurniture.image} alt={t(foundFurniture.label)}/>
-                      }{
-                        t(foundFurniture.label, { toLower: true })
-                      }({value})
-                    </React.Fragment>
-                  )
-                })
-            }
-          />
-        )}
-    </div> :
-    null
+const renderFurnitureItem = (item: IFurnitureDisplayItem, index: number) => {
+  return (
+    <span key={item.furniture.id}>
+      {index !== 0 && ', '}
+      <img src={item.furniture.image} alt={t(item.furniture.label)} />
+      {t(item.furniture.label, { toLower: true })}({item.value})
+    </span>
+  )
+}
+
+const getFurnitureItems = (furnitureData: Record<string, number>): IFurnitureDisplayItem[] => {
+  return Object.entries(furnitureData)
+    .filter(([_, value]) => !!value)
+    .map(([key, value]) => {
+      const foundFurniture = furniture.find(i => i.id === +key) as IFurnitureItem
+      return { furniture: foundFurniture, value }
+    })
+}
+
+const RoomFurnitureDisplay: React.FC<{
+  roomID: string
+  room: TRoomFurniture
+  elevator?: { steps: Record<string, number> }
+}> = ({ roomID, room, elevator }) => {
+  const foundRoom = rooms.find(r => r.id === +roomID) as IRoom
+  const furnitureItems = getFurnitureItems(room)
+
+  return (
+    <OrderField
+      image={images.furniture}
+      alt={t(foundRoom.label)}
+      title={t(foundRoom.label)}
+      value={
+        <>
+          {elevator?.steps[roomID] &&
+            `${elevator.steps[roomID]} ${t(TRANSLATION.STEPS)}, `
+          }
+          {furnitureItems.map((item, index) => renderFurnitureItem(item, index))}
+        </>
+      }
+    />
+  )
+}
+
+const SimpleFurnitureDisplay: React.FC<{
+  furniture: Record<string, number>
+}> = ({ furniture: furnitureData }) => {
+  const furnitureItems = getFurnitureItems(furnitureData)
+
+  return (
+    <OrderField
+      image={images.furniture}
+      alt={t(TRANSLATION.FURNITURE_LIST)}
+      title={t(TRANSLATION.FURNITURE_LIST)}
+      value={furnitureItems.map((item, index) => renderFurnitureItem(item, index))}
+    />
+  )
+}
+
+const Rooms: React.FC<IProps> = ({ order }) => {
+  if (!order.b_options?.furniture) {
+    return null
+  }
+
+  const isApartmentMove = order.b_options.moveType === EMoveTypes.Apartament
+
+  return (
+    <div className="order-info__furniture">
+      {isApartmentMove ? (
+        Object.entries<TRoomFurniture>(order.b_options.furniture as IFurniture['house'])
+          .map(([roomID, room]) => (
+            <RoomFurnitureDisplay
+              key={roomID}
+              roomID={roomID}
+              room={room}
+              elevator={order.b_options?.elevator}
+            />
+          ))
+      ) : (
+        <SimpleFurnitureDisplay furniture={order.b_options.furniture as Record<string, number>} />
+      )}
+    </div>
+  )
 }
 
 export default Rooms

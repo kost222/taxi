@@ -35,6 +35,7 @@ export const ActionTypes = {
 
   CLEAR: `${prefix}/CLEAR`,
   SET_ORDER_COUNT: `${prefix}/SET_ORDER_COUNT`,
+  SUBMIT_REVIEW: `${prefix}/SUBMIT_REVIEW`,
 } as const
 
 export interface IOrdersState {

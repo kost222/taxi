@@ -82,3 +82,9 @@ export const setDeleteFilesModal = (payload: IModalsState['deleteFilesModal']): 
 export const setIsShowSwitchersMenu = (payload: IModalsState['isShowSwitchersMenu']): TAction => {
   return { type: ActionTypes.SET_SHOW_SWITCHERS_MENU, payload }
 }
+export const setReviewModal = (payload: IModalsState['reviewModal']): TAction => {
+  return { type: ActionTypes.SET_REVIEW_MODAL, payload }
+}
+export const setBoardingCodeModal = (payload: IModalsState['boardingCodeModal']): TAction => {
+  return { type: ActionTypes.SET_BOARDING_CODE_MODAL, payload }
+}

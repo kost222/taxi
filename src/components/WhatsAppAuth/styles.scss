@@ -1,0 +1,155 @@
+@import '../../styles/variables';
+
+.whatsapp-auth {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  &__logo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 12px;
+  }
+
+  &__title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+
+  &__description {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  &__input {
+    width: 100%;
+    margin-bottom: 16px;
+
+    &--code {
+      input {
+        font-size: 24px;
+        text-align: center;
+        letter-spacing: 8px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  &__error {
+    background: #fee;
+    color: #c00;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  &__btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &--primary {
+      background: #25D366;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background: #1da851;
+      }
+    }
+
+    &--secondary {
+      background: #f0f0f0;
+      color: #333;
+
+      &:hover:not(:disabled) {
+        background: #e0e0e0;
+      }
+    }
+  }
+
+  &__resend {
+    width: 100%;
+    margin-top: 16px;
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: #25D366;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+
+    &:hover:not(:disabled) {
+      color: #1da851;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // Анимация появления
+  animation: slideUp 0.3s ease;
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  // Мобильная адаптация
+  @media (max-width: 480px) {
+    padding: 16px;
+
+    &__logo {
+      width: 48px;
+      height: 48px;
+    }
+
+    &__title {
+      font-size: 18px;
+    }
+
+    &__actions {
+      flex-direction: column;
+    }
+  }
+}

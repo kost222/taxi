@@ -1,0 +1,265 @@
+// Дизайн система из макета Taxi (3).zip
+
+// Основные цвета
+$color-primary: #FF4444; // Красный основной
+$color-primary-dark: #E63946;
+$color-primary-light: #FF6B6B;
+
+// Фоны
+$bg-dark: #1a1a1a; // Темный фон для темной темы
+$bg-dark-card: #2a2a2a; // Карточки в темной теме
+$bg-dark-input: #3a3a3a; // Поля ввода в темной теме
+
+$bg-light: #f5f5f5; // Светлый фон
+$bg-light-card: #ffffff; // Карточки в светлой теме
+$bg-light-input: #f0f0f0; // Поля ввода в светлой теме
+
+// Текст
+$text-dark-primary: #ffffff;
+$text-dark-secondary: #b0b0b0;
+$text-dark-tertiary: #808080;
+
+$text-light-primary: #1a1a1a;
+$text-light-secondary: #666666;
+$text-light-tertiary: #999999;
+
+// Статусы
+$color-success: #4caf50;
+$color-warning: #ff9800;
+$color-error: #f44336;
+
+// Границы
+$border-dark: #3a3a3a;
+$border-light: #e0e0e0;
+
+// Размеры
+$radius-button: 25px;
+$radius-card: 20px;
+$radius-input: 12px;
+$radius-small: 8px;
+
+// Тени
+$shadow-card: 0 2px 8px rgba(0, 0, 0, 0.15);
+$shadow-button: 0 2px 4px rgba(0, 0, 0, 0.2);
+$shadow-button-hover: 0 4px 8px rgba(0, 0, 0, 0.25);
+
+// Миксины для темной темы
+@mixin dark-theme {
+  background: $bg-dark-card;
+  color: $text-dark-primary;
+
+  input, textarea, select {
+    background: $bg-dark-input;
+    color: $text-dark-primary;
+    border: 1px solid $border-dark;
+
+    &::placeholder {
+      color: $text-dark-tertiary;
+    }
+  }
+
+  .secondary-text {
+    color: $text-dark-secondary;
+  }
+}
+
+// Миксины для светлой темы
+@mixin light-theme {
+  background: $bg-light-card;
+  color: $text-light-primary;
+
+  input, textarea, select {
+    background: $bg-light-input;
+    color: $text-light-primary;
+    border: 1px solid $border-light;
+
+    &::placeholder {
+      color: $text-light-tertiary;
+    }
+  }
+
+  .secondary-text {
+    color: $text-light-secondary;
+  }
+}
+
+// Кнопка в стиле макета
+@mixin taxi-button {
+  padding: 15px 30px;
+  border-radius: $radius-button;
+  border: none;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: $shadow-button;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-button-hover;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &--primary {
+    background: $color-primary;
+    color: white;
+
+    &:hover {
+      background: $color-primary-dark;
+    }
+  }
+
+  &--secondary {
+    background: $bg-dark-input;
+    color: $text-dark-primary;
+
+    &:hover {
+      background: lighten($bg-dark-input, 5%);
+    }
+  }
+
+  &--cancel {
+    background: transparent;
+    color: $color-primary;
+    border: 2px solid $color-primary;
+
+    &:hover {
+      background: rgba($color-primary, 0.1);
+    }
+  }
+}
+
+// Карточка в стиле макета
+@mixin taxi-card {
+  background: $bg-dark-card;
+  border-radius: $radius-card;
+  padding: 20px;
+  box-shadow: $shadow-card;
+
+  .light-theme & {
+    background: $bg-light-card;
+  }
+}
+
+// Поле ввода в стиле макета
+@mixin taxi-input {
+  width: 100%;
+  padding: 15px;
+  background: $bg-dark-input;
+  border: none;
+  border-radius: $radius-input;
+  color: $text-dark-primary;
+  font-size: 16px;
+  transition: all 0.3s ease;
+
+  &::placeholder {
+    color: $text-dark-tertiary;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba($color-primary, 0.3);
+  }
+
+  .light-theme & {
+    background: $bg-light-input;
+    color: $text-light-primary;
+
+    &::placeholder {
+      color: $text-light-tertiary;
+    }
+  }
+}
+
+// Класс авто карточка
+@mixin car-class-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  background: $bg-dark-input;
+  border-radius: $radius-input;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: lighten($bg-dark-input, 5%);
+  }
+
+  &.selected {
+    background: $color-primary;
+    color: white;
+  }
+
+  .icon {
+    width: 40px;
+    height: 30px;
+    margin-bottom: 8px;
+  }
+
+  .name {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .price {
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+// Карточка водителя
+@mixin driver-card {
+  @include taxi-card;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+
+  .position {
+    width: 30px;
+    height: 30px;
+    background: $color-primary;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+
+  .info {
+    flex: 1;
+
+    .name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .details {
+      font-size: 14px;
+      color: $text-dark-secondary;
+    }
+  }
+
+  .rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: $color-warning;
+
+    .stars {
+      display: flex;
+      gap: 2px;
+    }
+  }
+
+  .price {
+    font-size: 18px;
+    font-weight: bold;
+    color: $color-primary;
+  }
+}

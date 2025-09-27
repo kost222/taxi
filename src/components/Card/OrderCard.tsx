@@ -13,12 +13,10 @@ import images from '../../constants/images'
 import { dateFormatDate, dateShowFormat, formatCommentWithEmoji, getOrderCount, getPayment, shortenAddress } from '../../tools/utils'
 import cn from 'classnames'
 import { createPortal } from 'react-dom'
-
 import * as API from '../../API'
 import CardModal from '../modals/CardModal'
 import { Loader } from '../loader/Loader'
 import { OrderAddressContext } from '../../pages/Driver'
-
 interface IOrderCardProps {
   user: IUser,
   order: IOrder,
@@ -36,29 +34,22 @@ const OrderCard: React.FC<IOrderCardProps> = ({
   onClick,
 }) => {
   // const chatHostDivID = `chatDiv${order.b_id}`
-
   const context = useContext(OrderAddressContext);
-
   const [activeModal, setActiveModal] = useState(false)
   const [isFromAddressShort, setIsFromAddressShort] = useState(true)
   const [address, setAddress] = useState<IAddressPoint|null>(context?.ordersAddressRef.current[order.b_id] || null)
-
   const getStatusText = () => {
     if (order.b_voting) return t(TRANSLATION.VOTER)
     return ''
   }
-
   const getStatusTextColor = () => {
     if (order.b_voting) return '#FF2400'
     // 'reccomended': return '#00A72F'\
     return 'rgba(0, 0, 0, 0.25)'
   }
-
   const driver = order.drivers?.find((item: any) => item.c_state > EBookingDriverState.Canceled)
-
   let avatar = images.avatar
   let avatarSize = '48px'
-
   useEffect(() => {
     if ( !order.b_start_latitude || !order.b_start_longitude || context?.ordersAddressRef.current[order.b_id] ) return
     API.reverseGeocode(order.b_start_latitude?.toString(), order.b_start_longitude?.toString())
@@ -77,7 +68,6 @@ const OrderCard: React.FC<IOrderCardProps> = ({
         setAddress(val)
       })
   }, [])
-
   return (<>
     <div
       className={cn(
@@ -97,7 +87,7 @@ const OrderCard: React.FC<IOrderCardProps> = ({
       {/* {showChat && user ?
         (
           <div id={chatHostDivID} className="order-chat"> */}
-      {/* TODO remove ignore */}
+      {}
       {/* @ts-ignore */}
       {/* <Chat
               parentID={chatHostDivID}
@@ -142,11 +132,9 @@ const OrderCard: React.FC<IOrderCardProps> = ({
                     alt='change address mode'
                   />
                 )} */}
-              
               {t(TRANSLATION.TO)}: <span>{order.b_destination_address || `${order.b_destination_latitude}, ${order.b_destination_longitude}`}</span>
             </span>
           </div>
-
           {/* <div className="status-card__to">
             <img src={images.turnBr} alt={t(TRANSLATION.TO)}/>
             <span>
@@ -156,12 +144,10 @@ const OrderCard: React.FC<IOrderCardProps> = ({
         </span>
       </div>
       <div className="status-card__separator separate status-card__money">
-
         {/* <span style={{ color: SITE_CONSTANTS.PALETTE.primary.light }}> */}
         <span className="status-card__cost">
           <img src={images.dollarMinimalistic} alt={t(TRANSLATION.CASH)}/> {getPayment(order).value} {CURRENCY.NAME}
         </span>
-
         {order.profit &&
           <span className="status-card__profit">
             {new Intl.NumberFormat(undefined, {
@@ -189,7 +175,7 @@ const OrderCard: React.FC<IOrderCardProps> = ({
       {
         // driver?.c_state !== EBookingDriverState.Finished && <div className="status-card__other-info">
         //   <span>
-        //     {/* TODO real time */}
+        //     {}
         //     {t(TRANSLATION.APPROXIMATE_TIME)}: 1 {t(TRANSLATION.HOUR)}
         //     <img src={images.clockGrey} alt={t(TRANSLATION.CLOCK)}/>
         //   </span>
@@ -197,7 +183,6 @@ const OrderCard: React.FC<IOrderCardProps> = ({
         // </div>
       }
     </div>
-
     {activeModal && createPortal(
       <CardModal
         active={activeModal}
@@ -213,5 +198,4 @@ const OrderCard: React.FC<IOrderCardProps> = ({
     )}
   </>)
 }
-
 export default OrderCard

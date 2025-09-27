@@ -1,6 +1,5 @@
 import images from './images'
 const { economTaxi, businessTaxi, notoTaxi, cash, card } = images
-
 export const class_auto = [
   {
     id: 1,
@@ -21,8 +20,6 @@ export const class_auto = [
     width: '28%',
   },
 ]
-
-// TODO use
 export const cards = [
   {
     id: 1,

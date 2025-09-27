@@ -14,23 +14,18 @@ import { useInterval } from '../../tools/hooks'
 import images from '../../constants/images'
 import Overlay from './Overlay'
 import { EColorTypes } from '../../types/types'
-
 const mapStateToProps = (state: IRootState) => ({
   isOpen: modalsSelectors.isVoteModalOpen(state),
   selectedOrder: clientOrderSelectors.selectedOrder(state),
   activeOrders: ordersSelectors.activeOrders(state),
 })
-
 const mapDispatchToProps = {
   setVoteModal: modalsActionCreators.setVoteModal,
   setCancelModal: modalsActionCreators.setCancelModal,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IProps extends ConnectedProps<typeof connector> {
 }
-
 const VoteModal: React.FC<IProps> = ({
   isOpen,
   selectedOrder,
@@ -39,20 +34,17 @@ const VoteModal: React.FC<IProps> = ({
   setCancelModal,
 }) => {
   const order = activeOrders?.find(item => item.b_id === selectedOrder)
-
   const [sumSeconds, setSumSeconds] = useState(order?.b_max_waiting || SITE_CONSTANTS.WAITING_INTERVAL)
   const [seconds, setSeconds] = useState(
     order?.b_start_datetime ?
       (sumSeconds - moment().diff(order?.b_start_datetime, 'seconds')) :
       sumSeconds,
   )
-
   useInterval(() => {
     const newSeconds = order?.b_start_datetime ?
       ((sumSeconds || SITE_CONSTANTS.WAITING_INTERVAL) - moment().diff(order?.b_start_datetime, 'seconds')) :
       sumSeconds || SITE_CONSTANTS.WAITING_INTERVAL
     if (newSeconds <= 0 && isOpen) {
-      console.error('Seconds is less then 0')
       setVoteModal(false)
       setSeconds(order?.b_max_waiting || SITE_CONSTANTS.WAITING_INTERVAL)
       setSumSeconds(order?.b_max_waiting || SITE_CONSTANTS.WAITING_INTERVAL)
@@ -60,7 +52,6 @@ const VoteModal: React.FC<IProps> = ({
     }
     setSeconds(newSeconds)
   }, 1000)
-
   useEffect(() => {
     if (isOpen) {
       setSeconds(
@@ -71,21 +62,16 @@ const VoteModal: React.FC<IProps> = ({
       setSumSeconds(order?.b_max_waiting || SITE_CONSTANTS.WAITING_INTERVAL)
     }
   }, [isOpen, selectedOrder])
-
   const onWaiting = () => {
     if (!selectedOrder) return
-
-    // TODO use waiting_interval_add
     const additionalTime = 180
-
     API.setWaitingTime(selectedOrder, sumSeconds)
       .then(() => {
         setSumSeconds(prev => prev + additionalTime)
         setSeconds(prev => prev + additionalTime)
       })
-      .catch(error => console.error(error))
+      .catch(error => console.error('Error adding vote time:', error))
   }
-
   return (
     <Overlay
       isOpen={isOpen}
@@ -97,7 +83,7 @@ const VoteModal: React.FC<IProps> = ({
         <form>
           <fieldset>
             <legend>
-              {/* TODO replace spaces by margin */}
+              {}
               {t(TRANSLATION.ORDER)} №{selectedOrder}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               {t(TRANSLATION.DRIVE)} №{order?.b_driver_code}
             </legend>
@@ -108,7 +94,6 @@ const VoteModal: React.FC<IProps> = ({
                   {t(TRANSLATION.LEFT)} <span style={{ marginLeft: '5px', marginRight: '5px' }}>{seconds}</span> {t(TRANSLATION.SECONDS)}
                 </article>
               </div>
-
               <Button
                 text={t(TRANSLATION.CONTINUE_WAITING)}
                 className="vote-modal-btn"
@@ -133,6 +118,4 @@ const VoteModal: React.FC<IProps> = ({
     </Overlay>
   )
 }
-
 export default connector(VoteModal)
-

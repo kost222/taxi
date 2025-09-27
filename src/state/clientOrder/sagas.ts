@@ -10,7 +10,6 @@ import { IRootState } from '..'
 import { configConstants } from '../config'
 import { IClientOrderState, ActionTypes } from './constants'
 import { moduleSelector } from './selectors'
-
 export const saga = function* () {
   yield all([
     takeEvery(ActionTypes.SET_FROM_REQUEST, setPointSaga(EPointType.From)),
@@ -31,7 +30,6 @@ export const saga = function* () {
     takeEvery(ActionTypes.RESET, resetSaga),
   ])
 }
-
 function* reloadStorageSaga() {
   const actions: [
     typeof ActionTypes[keyof typeof ActionTypes],
@@ -49,7 +47,6 @@ function* reloadStorageSaga() {
     if (payload !== undefined)
       yield put({ type, payload })
 }
-
 function* setCarDataSaga() {
   const keys: (keyof IClientOrderState)[] = ['carClass', 'seats']
   for (const key of keys)
@@ -79,7 +76,6 @@ function* setCustomerPriceSaga() {
   const value = yield* select(keySelector('customerPrice'))
   setItem('state.clientOrder.customerPrice', value)
 }
-
 function resetSaga() {
   const keys = [
     'carClass',
@@ -92,15 +88,12 @@ function resetSaga() {
   for (const key of keys)
     removeItem(`state.clientOrder.${key}`)
 }
-
 const keySelector = (key: keyof IClientOrderState) =>
   (state: IRootState) => moduleSelector(state)[key]
-
 const setPointSaga = (type: EPointType) => function* (action: TAction) {
   let value: IAddressPoint = action.payload
   yield* setIntermediatePoint(type, value)
   let errorHappened = false
-
   if (action.payload.isCurrent && navigator.geolocation) {
     try {
       const position = yield* call<GeolocationPosition>(getCurrentPosition)
@@ -108,11 +101,9 @@ const setPointSaga = (type: EPointType) => function* (action: TAction) {
       value = { ...value, latitude, longitude }
       yield* setIntermediatePoint(type, value)
     } catch (error) {
-      console.warn('Geolocation error', error)
       errorHappened = true
     }
   }
-
   if (
     !(value.address || value.shortAddress) &&
     value.latitude && value.longitude
@@ -137,18 +128,15 @@ const setPointSaga = (type: EPointType) => function* (action: TAction) {
       }
       yield* setIntermediatePoint(type, value)
     } catch (error) {
-      console.error(error)
       errorHappened = true
     }
   }
-
   if (!errorHappened)
     setItem(
       `state.clientOrder.${type === EPointType.From ? 'from' : 'to'}`,
       value,
     )
 }
-
 function* setIntermediatePoint(type: EPointType, value: IAddressPoint) {
   yield put({
     type: type === EPointType.From ? ActionTypes.SET_FROM : ActionTypes.SET_TO,

@@ -52,9 +52,13 @@ const Furniture: React.FC<IProps> = ({
           </ul>
         ))}
         options={{
+          type: 'carousel',
           perView: 2,
           gap: 10,
-        }}
+          startAt: 0,
+          focusAt: 0,
+          autoplay: false,
+        } as any}
         bullets
       />
       <div className="furniture__total">

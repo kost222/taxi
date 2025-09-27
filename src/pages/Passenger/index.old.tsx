@@ -110,7 +110,6 @@ import ShortInfo from '../../components/ShortInfo'
 import SeatSlider from '../../components/SeatSlider'
 import CarClassSlider from '../../components/CarClassSlider'
 import PriceInput from '../../components/PriceInput'
-
 const mapStateToProps = (state: IRootState) => ({
   carClass: clientOrderSelectors.carClass(state),
   seats: clientOrderSelectors.seats(state),
@@ -125,7 +124,6 @@ const mapStateToProps = (state: IRootState) => ({
   activeOrders: ordersSelectors.activeOrders(state),
   user: userSelectors.user(state),
 })
-
 const mapDispatchToProps = {
   ...clientOrderActionCreators,
   getActiveOrders: ordersActionCreators.getActiveOrders,
@@ -138,9 +136,7 @@ const mapDispatchToProps = {
   setRatingModal: modalsActionCreators.setRatingModal,
   setCandidatesModal: modalsActionCreators.setCandidatesModal,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IFormValues {
   from_porch: string;
   from_floor: string;
@@ -164,22 +160,17 @@ interface IFormValues {
   bigTruckCarTypes?: string[] | string;
   bigTruckCarLogic: ELogic;
 }
-
 interface IProps extends ConnectedProps<typeof connector> { }
-
 let prevSelectedOrder: IOrder | null | undefined = null
-
 const defaultOrderDataValues = {
   bigTruckCarLogic: ELogic.Nothing,
 }
-
 const defaultDateTimeIntervalValue = {
   dateType: ETimeTypes.Single,
   dateComparator: ECompareVariants.Equal,
   timeType: ETimeTypes.Single,
   timeComparator: ECompareVariants.Equal,
 }
-
 const PassengerOrder: React.FC<IProps> = ({
   carClass,
   seats,
@@ -236,7 +227,6 @@ const PassengerOrder: React.FC<IProps> = ({
       (item) => typeof item === 'number',
     ) as unknown as EMoveTypes[],
   )
-
   const isIntercity = SITE_CONSTANTS.BOOKING_LOCATION_CLASSES.find(({ id }) =>
     id === locationClass,
   )?.kind === EBookingLocationKinds.Intercity
@@ -253,7 +243,6 @@ const PassengerOrder: React.FC<IProps> = ({
       ))!.id,
     )
   }, [isIntercity])
-
   // Input values
   const [fromDay, setFromDay] = useCachedState(
     `${cachedOrderDataStateKey}.fromDay`,
@@ -343,17 +332,13 @@ const PassengerOrder: React.FC<IProps> = ({
   const [bigTruckServices, setBigTruckServices] = useState<
     IBigTruckService['id'][]
   >([])
-
   const [distance, setDistance] = useState(0)
   const [moveFiles, setMoveFiles] = useState<TMoveFiles>({})
-
   const [refresh, setRefresh] = useState(false)
-
   const mapCenter = useRef<[lat: number, lng: number]>(null)
   const setMapCenter = useCallback((value: [number, number]) => {
     mapCenter.current = value
   }, [])
-
   const formContainerRef = useRef<HTMLDivElement>(null)
   const draggableRef = useRef<HTMLFormElement>(null)
   const formSlidersRef = useRef<HTMLElement[]>([])
@@ -361,7 +346,6 @@ const PassengerOrder: React.FC<IProps> = ({
     formContainerRef, draggableRef,
     undefined, formSlidersRef,
   )
-
   const setFromAsMapCenter = useCallback(() => {
     if (isExpanded)
       setIsExpanded(false)
@@ -378,14 +362,12 @@ const PassengerOrder: React.FC<IProps> = ({
       setTo({ latitude, longitude })
     }
   }, [isExpanded])
-
   const roomFurniture =
     tab === TABS.MOVE.id && moveType === EMoveTypes.Apartament ?
       room !== null ?
         furniture.house[room] :
         null :
       furniture.room
-
   const {
     register,
     formState: { errors },
@@ -403,9 +385,7 @@ const PassengerOrder: React.FC<IProps> = ({
       ),
     },
   })
-
   const values = useWatchWithEffect<IFormValues>(
-    // TODO
     // @ts-ignore
     {
       control,
@@ -417,7 +397,6 @@ const PassengerOrder: React.FC<IProps> = ({
       )
     },
   )
-
   const selectedOrder = activeOrders?.find(
     (item) => item.b_id === selectedOrderID,
   )
@@ -450,7 +429,6 @@ const PassengerOrder: React.FC<IProps> = ({
             window.scroll(0, 0)
           })
           .catch((error) => {
-            console.error(error)
             setMessageModal({
               isOpen: true,
               status: EStatuses.Fail,
@@ -461,15 +439,12 @@ const PassengerOrder: React.FC<IProps> = ({
     }
     setRefresh(!refresh)
   }, 5000)
-
   useEffect(() => {
     if (user) getActiveOrders()
   }, [user])
-
   useEffect(() => {
     setDistance(calcOrderDistance([from, to]))
   }, [from, to])
-
   const openCurrentModal = () => {
     if (!selectedOrder) {
       setVoteModal(false)
@@ -477,7 +452,6 @@ const PassengerOrder: React.FC<IProps> = ({
       setOnTheWayModal(false)
       return
     }
-
     if (selectedOrder.b_voting && !selectedOrderDriver) {
       if (
         selectedOrder.b_start_datetime &&
@@ -499,7 +473,6 @@ const PassengerOrder: React.FC<IProps> = ({
             window.scroll(0, 0)
           })
           .catch((error) => {
-            console.error(error)
             setMessageModal({
               isOpen: true,
               status: EStatuses.Fail,
@@ -508,7 +481,6 @@ const PassengerOrder: React.FC<IProps> = ({
           })
       } else return setVoteModal(true)
     }
-
     if (
       ['96', '95'].some((item) =>
         selectedOrder?.b_comments?.includes(item),
@@ -518,7 +490,6 @@ const PassengerOrder: React.FC<IProps> = ({
       setCandidatesModal(true)
       return
     }
-
     if (
       !selectedOrderDriver ||
       selectedOrderDriver.c_state === EBookingDriverState.Finished
@@ -528,7 +499,6 @@ const PassengerOrder: React.FC<IProps> = ({
       setOnTheWayModal(false)
       return
     }
-
     if (
       [
         EBookingDriverState.Performer,
@@ -544,7 +514,6 @@ const PassengerOrder: React.FC<IProps> = ({
       setOnTheWayModal(true)
     }
   }
-
   // Used to open rating modal
   useEffect(() => {
     const prevSelectedOrderDriver = prevSelectedOrder?.drivers?.find(
@@ -564,20 +533,17 @@ const PassengerOrder: React.FC<IProps> = ({
           if (resDriver?.c_state === EBookingDriverState.Finished)
             setRatingModal({ isOpen: true, orderID: id })
         })
-        .catch((error) => console.error(error))
+        .catch((error) => console.error('Error fetching booking:', error))
     }
   }, [selectedOrder])
-
   useEffect(() => {
     openCurrentModal()
   }, [selectedOrderID, selectedOrderDriver?.c_state])
-
   const handleOrderClick = (order: IOrder) => {
     if (selectedOrderID === order.b_id) {
       openCurrentModal()
     } else setSelectedOrder(order.b_id)
   }
-
   // const handleMoveFilesChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   if (room === null) return
   //   const files = e.target.files
@@ -591,7 +557,6 @@ const PassengerOrder: React.FC<IProps> = ({
   //       []),
   //   }))
   // }
-
   const handleDeleteMoveFile = (src: IFile['src']) => {
     if (!room) return
     setMoveFiles((prev) => ({
@@ -603,7 +568,6 @@ const PassengerOrder: React.FC<IProps> = ({
     if (!room) return
     setMoveFiles((prev) => ({ ...prev, [room]: [] }))
   }
-
   const handleLogicChange =
     (type: ELogic) => (e: React.ChangeEvent<HTMLInputElement>) => {
       if (type === ELogic.And) {
@@ -617,20 +581,17 @@ const PassengerOrder: React.FC<IProps> = ({
         else setValue('bigTruckCarLogic', ELogic.Or)
       }
     }
-
   const handleSubmit = async() => {
     try {
       if (!phone || getPhoneError(phone)) {
         throw t(TRANSLATION.PHONE_PATTERN_ERROR)
       }
-
       if (
         (tab === TABS.DELIVERY.id || tab === TABS.MOTORCYCLE.id) &&
         (getPhoneError(fromPhone) || getPhoneError(toPhone))
       ) {
         throw t(TRANSLATION.PHONE_PATTERN_ERROR)
       }
-
       if (!from || !((from.latitude && from.longitude) || from.address)) {
         throw t(TRANSLATION.MAP_FROM_NOT_SPECIFIED_ERROR)
       }
@@ -640,7 +601,6 @@ const PassengerOrder: React.FC<IProps> = ({
       ) {
         throw t(TRANSLATION.MAP_TO_NOT_SPECIFIED_ERROR)
       }
-
       const commentObj: any = {}
       commentObj['b_comments'] = comments.ids || []
       comments.custom &&
@@ -652,7 +612,6 @@ const PassengerOrder: React.FC<IProps> = ({
       tab === TABS.MOTORCYCLE.id && commentObj['b_comments'].push(97)
       tab === TABS.MOVE.id && commentObj['b_comments'].push(96)
       tab === TABS.WAGON.id && commentObj['b_comments'].push(95)
-
       let startTime: Moment
       if ([TABS.DELIVERY.id, TABS.MOVE.id].includes(tab)) {
         startTime = moment(
@@ -671,7 +630,6 @@ const PassengerOrder: React.FC<IProps> = ({
       } else {
         startTime = moment(time)
       }
-
       let options: IOptions = {
         fromShortAddress: from?.shortAddress,
         toShortAddress: to?.shortAddress,
@@ -720,7 +678,6 @@ const PassengerOrder: React.FC<IProps> = ({
               furniture.room,
           time_is_not_important: fromTimeFrom === '',
         }
-
       if (tab === TABS.WAGON.id)
         options = {
           ...options,
@@ -737,7 +694,6 @@ const PassengerOrder: React.FC<IProps> = ({
               values.bigTruckCarTypes,
           bigTruckServices: bigTruckServices,
         }
-
       await API.postDrive({
         b_start_address: from.address,
         b_start_latitude: from.latitude,
@@ -780,16 +736,13 @@ const PassengerOrder: React.FC<IProps> = ({
           tab === TABS.VOTING.id ? [EServices.Voting.toString()] : [],
         b_options: options,
       })
-
       getActiveOrders()
-
       window.scroll(0, 0)
       reset()
       localStorage.removeItem(cachedOrderDataValuesKey)
       localStorage.removeItem('to')
       resetClientOrder()
     } catch (error) {
-      console.error(error)
       setStatus(EStatuses.Fail)
       if (typeof error === 'string') {
         setMessage(error)
@@ -798,7 +751,6 @@ const PassengerOrder: React.FC<IProps> = ({
       }
     }
   }
-
   const handleFurnitureChange = (id: number, value: TRoomFurniture) => {
     if (room == null) return
     setFurniture((prev) => {
@@ -808,29 +760,24 @@ const PassengerOrder: React.FC<IProps> = ({
       return { ...prev, room: value }
     })
   }
-
   const handleFromDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFromDay(e.target.value)
     if (!fromTimeFromDirty) {
       setFromTimeFrom(fromTimeFromOptions[1].value)
     }
   }
-
   const insertCargoTypeIntoCargoDescription = (cargoType: string) => {
     setCargoDescription((cargoDescription ?? '') + cargoType + ' ')
   }
-
   const fromTimeFromOptions = getTimeOptions(
     moment(fromDay, dateFormatDate).days() === moment().days() ?
       moment() :
       null,
   )
-
   // Used to open rating modal
   useEffect(() => {
     prevSelectedOrder = selectedOrder
   }, [selectedOrder])
-
   let cardPaymentEnabled = false
   const mode =
     SITE_CONSTANTS.MONEY_MODES[
@@ -840,7 +787,6 @@ const PassengerOrder: React.FC<IProps> = ({
     if (tab === TABS.DELIVERY.id) cardPaymentEnabled = mode[courierAuto]
     if (tab === TABS.MOVE.id) cardPaymentEnabled = mode[moveType]
   } else cardPaymentEnabled = mode
-
   return (
     <>
       <Layout>
@@ -870,7 +816,6 @@ const PassengerOrder: React.FC<IProps> = ({
                             onChange={(id: typeof tab) => setTab(id)}
                         /> */}
                 {/* <div className="form-with-map" ref={formWithMapRef}> */}
-
                 <div className="passenger__form">
                   {(TABS.VOTING.id === tab || TABS.WAITING.id === tab) && (
                     <VotingForm
@@ -1132,16 +1077,13 @@ const PassengerOrder: React.FC<IProps> = ({
           </div>
         </PageSection>
       </Layout>
-
       {tab === TABS.WASH.id && (
         <Map disableButtons isOpen={tab === TABS.WASH.id} />
       )}
     </>
   )
 }
-
 export default connector(PassengerOrder)
-
 /* VOTING, WAITING, DELIVERY, MOTORCYCLE, MOVE, WAGON, TRIP, WASH */
 const mapStateToVotingFormProps = (state: IRootState) => ({
   comments: clientOrderSelectors.comments(state),
@@ -1169,7 +1111,6 @@ interface IVotingFormProps extends ConnectedProps<typeof votingFormConnector> {
   syncFrom: () => void;
   syncTo: () => void;
 };
-
 type TWaitingFormProps = {
   tab: (typeof TABS)[keyof typeof TABS]['id'];
   isIntercity: boolean;
@@ -1195,7 +1136,6 @@ type TWaitingFormProps = {
   setPickTimeModal: IProps['setPickTimeModal'];
   setCommentsModal: IProps['setCommentsModal'];
 };
-
 type TDeliveryFormProps = {
   tab: (typeof TABS)[keyof typeof TABS]['id'];
   courierAuto: ECourierAutoTypes | string;
@@ -1245,7 +1185,6 @@ type TDeliveryFormProps = {
   cost: number;
   setCost: React.Dispatch<React.SetStateAction<number>>;
 };
-
 type TMotorcycleFormProps = {
   tab: (typeof TABS)[keyof typeof TABS]['id'];
   isIntercity: boolean;
@@ -1274,7 +1213,6 @@ type TMotorcycleFormProps = {
   cost: number;
   setCost: React.Dispatch<React.SetStateAction<number>>;
 };
-
 type TMoveFormProps = {
   tab: (typeof TABS)[keyof typeof TABS]['id'];
   setMoveType: React.Dispatch<React.SetStateAction<EMoveTypes>>;
@@ -1312,7 +1250,6 @@ type TMoveFormProps = {
     value: string | null;
   }[];
 };
-
 type TWagonFormProps = {
   tab: (typeof TABS)[keyof typeof TABS]['id'];
   moveType: EMoveTypes;
@@ -1348,7 +1285,6 @@ type TWagonFormProps = {
   bigTruckServices: number[];
   setBigTruckServices: React.Dispatch<React.SetStateAction<number[]>>;
 };
-
 type TTripFormProps = {
   tab: (typeof TABS)[keyof typeof TABS]['id'];
   moveType: EMoveTypes;
@@ -1368,7 +1304,6 @@ type TTripFormProps = {
   fromTimeInterval: IDateTime;
   setFromTimeInterval: React.Dispatch<React.SetStateAction<IDateTime>>;
 };
-
 type TWashFormProps = {
   tab: (typeof TABS)[keyof typeof TABS]['id'];
   moveType: EMoveTypes;
@@ -1379,7 +1314,6 @@ type TWashFormProps = {
   // errors: FieldErrors<IFormValues>;
   // t: any;
 };
-
 const VotingForm = votingFormConnector(forwardRef(function VotingForm(
   {
     tab,
@@ -1409,17 +1343,13 @@ const VotingForm = votingFormConnector(forwardRef(function VotingForm(
   }: IVotingFormProps,
   ref: React.ForwardedRef<HTMLElement[]>,
 ) {
-
   const carSliderRef = useRef<HTMLDivElement>(null)
   const seatSliderRef = useRef<HTMLDivElement>(null)
-
   useImperativeHandle(ref, () => [
     carSliderRef.current!,
     seatSliderRef.current!,
   ].filter(Boolean))
-
   const [phoneError, setPhoneError] = useState<string | null>(null)
-
   return (
     <>
       <div className="form-container__location-wrapper">
@@ -1483,7 +1413,6 @@ const VotingForm = votingFormConnector(forwardRef(function VotingForm(
           </div>
         , [time])}
       </div>
-
       {useMemo(() =>
         <div className="form-container__car-class">
           <div className="form-container__car-class-header">
@@ -1524,7 +1453,6 @@ const VotingForm = votingFormConnector(forwardRef(function VotingForm(
           </div>
         </button>
       , [comments])}
-
       <>
         {/* <div className="waiting-block">
                     <span>
@@ -1647,7 +1575,6 @@ const VotingForm = votingFormConnector(forwardRef(function VotingForm(
       {useMemo(() => SITE_CONSTANTS.ENABLE_CUSTOMER_PRICE &&
         <PriceInput />
       , [])}
-
       {isExpanded && <div key="order-button-wrapper" className="form-container__order-button-wrapper">
         <Button
           type="submit"
@@ -1669,11 +1596,9 @@ const VotingForm = votingFormConnector(forwardRef(function VotingForm(
           label={message}
         />
       </div>}
-
     </>
   )
 }))
-
 function WaitingForm({
   tab,
   isIntercity,
@@ -1783,7 +1708,6 @@ function WaitingForm({
               ).value
               const payment = `~${typeof value === 'number' ? value.toFixed(2) : value}${CURRENCY.NAME
               }`
-
               return (
                 <Card
                   key={auto.id}
@@ -1998,7 +1922,6 @@ function DeliveryForm({
         onChange={(id: typeof courierAuto) => setCourierAuto(id)}
         visible={tab === TABS.DELIVERY.id}
       />
-
       <SwitchSlider
         checked={isIntercity}
         onValueChanged={(value) => setIsIntercity(value)}
@@ -2018,14 +1941,12 @@ function DeliveryForm({
         }}
         wrapperClassName="is-intercity"
       />
-
       <LocationInput
         onOpenMap={() => {
           // setIsMapVisible(true)
         }}
         type={EPointType.From}
       />
-
       {/*VOTING, WAITING, DELIVERY, MOTORCYCLE, MOVE, WAGON, TRIP, WASH  разобраться */}
       {!(tab === TABS.MOVE.id && moveType === EMoveTypes.Handy) &&
         tab !== TABS.WASH.id && (
@@ -2036,7 +1957,6 @@ function DeliveryForm({
           }}
         />
       )}
-
       <GroupedInputs>
         <Input
           inputProps={{
@@ -2063,7 +1983,6 @@ function DeliveryForm({
           error={errors.from_room?.message}
         />
       </GroupedInputs>
-
       {SITE_CONSTANTS.PASSENGER_ORDER_CONFIG.visibility.fromWay && (
         <Input
           inputProps={{
@@ -2090,7 +2009,6 @@ function DeliveryForm({
           />
         </details>
       )}
-
       <Input
         inputProps={{
           value: fromPhone || '',
@@ -2100,7 +2018,6 @@ function DeliveryForm({
         inputType={EInputTypes.MaskedPhone}
         error={getPhoneError(fromPhone)}
       />
-
       <>
         <Input
           inputProps={{
@@ -2139,7 +2056,6 @@ function DeliveryForm({
           />
         </GroupedInputs>
       </>
-
       {SITE_CONSTANTS.ENABLE_CUSTOMER_PRICE && (
         <Input
           inputProps={{
@@ -2151,7 +2067,6 @@ function DeliveryForm({
           error={errors.customer_price?.message}
         />
       )}
-
       <GroupedInputs>
         <Input
           inputProps={{
@@ -2178,7 +2093,6 @@ function DeliveryForm({
           error={errors.to_room?.message}
         />
       </GroupedInputs>
-
       {SITE_CONSTANTS.PASSENGER_ORDER_CONFIG.visibility.toWay && (
         <Input
           inputProps={{
@@ -2207,7 +2121,6 @@ function DeliveryForm({
           />
         </details>
       )}
-
       <Input
         inputProps={{
           value: toPhone || '',
@@ -2217,7 +2130,6 @@ function DeliveryForm({
         inputType={EInputTypes.MaskedPhone}
         error={getPhoneError(toPhone)}
       />
-
       <>
         <Input
           inputProps={{
@@ -2262,7 +2174,6 @@ function DeliveryForm({
           />
         </GroupedInputs>
       </>
-
       <>
         <Input
           inputProps={{
@@ -2281,7 +2192,6 @@ function DeliveryForm({
           onClick={(item) => setValue('object', item)}
         />
       </>
-
       <div className="weight">
         <Tabs
           tabs={SITE_CONSTANTS.PASSENGER_ORDER_CONFIG.values.weight.map(
@@ -2296,7 +2206,6 @@ function DeliveryForm({
           onChange={(id) => setWeight(id as typeof weight)}
         />
       </div>
-
       <>
         <Checkbox
           label={t(TRANSLATION.LARGE_PACKAGE)}
@@ -2336,7 +2245,6 @@ function DeliveryForm({
             null}
         </GroupedInputs>
       </>
-
       <>
         <div
           className="info"
@@ -2346,13 +2254,11 @@ function DeliveryForm({
         >
           {t(TRANSLATION.DELIVERY_INFO)}
         </div>
-
         <Checkbox
           {...register('loading')}
           label={t(TRANSLATION.BOXING_REQUIRED)}
         />
       </>
-
       <>
         <Separator text={t(TRANSLATION.PAYMENT_WAY)} />
         <div className="credit-cards">
@@ -2378,7 +2284,6 @@ function DeliveryForm({
           />
         </div>
       </>
-
       <Input
         inputProps={{
           value: phone || '',
@@ -2394,7 +2299,6 @@ function DeliveryForm({
           }
         }}
       />
-
       <div className="order-vote">
         <Button
           type="submit"
@@ -2411,7 +2315,6 @@ function DeliveryForm({
     </>
   )
 }
-
 function MotorcycleForm({
   tab,
   isIntercity,
@@ -2946,7 +2849,6 @@ function MoveForm({
     </>
   )
 }
-
 function WagonForm({
   tab,
   moveType,

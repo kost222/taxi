@@ -1,0 +1,360 @@
+@import "../../tools/mixins";
+
+.delivery-bonus-panel {
+  position: relative;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+// Горизонтальный скроллинг плашек
+.orders-scroll-container {
+  position: relative;
+  width: 100%;
+  padding: 20px 0;
+  background: linear-gradient(to bottom, #f8f8f8, #ffffff);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+
+  // Скрываем скроллбар
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cccccc;
+    border-radius: 2px;
+  }
+
+  @include phone {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+.orders-scroll-wrapper {
+  display: flex;
+  gap: 12px;
+  padding: 0 20px;
+  min-width: min-content;
+}
+
+// Карточка заказа
+.order-card {
+  flex: 0 0 280px;
+  min-width: 280px;
+  background: #ffffff;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  scroll-snap-align: center;
+  position: relative;
+
+  @include phone {
+    flex: 0 0 250px;
+    min-width: 250px;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  &--selected {
+    border-color: #FF2400;
+    background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
+    box-shadow: 0 4px 20px rgba(255, 36, 0, 0.2);
+    transform: scale(1.05);
+
+    &:hover {
+      transform: scale(1.05) translateY(-2px);
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  &__id {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333333;
+  }
+
+  &__time {
+    font-size: 12px;
+    color: #FF2400;
+    font-weight: 500;
+  }
+
+  &__route {
+    margin-bottom: 12px;
+  }
+
+  &__from,
+  &__to {
+    font-size: 13px;
+    line-height: 1.4;
+    color: #666666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+
+    &::before {
+      content: '• ';
+      color: #FF2400;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  &__price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #000000;
+  }
+
+  &__bonus {
+    background: #FF2400;
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+  }
+
+  &__indicator {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: #FF2400;
+    border-radius: 2px;
+    animation: blink 1.5s infinite;
+  }
+}
+
+// Панель управления бонусом
+.bonus-control {
+  padding: 20px;
+  background: #ffffff;
+  border-top: 2px solid #f0f0f0;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333333;
+    }
+  }
+
+  &__status {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  &__current {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #fff8f8;
+    border: 2px solid #FF2400;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+
+  &__label {
+    font-size: 16px;
+    color: #666666;
+  }
+
+  &__amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: #FF2400;
+  }
+
+  &__actions {
+    margin-bottom: 20px;
+  }
+
+  &__quick {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+
+    @include phone {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  &__other {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  &__info {
+    padding: 16px;
+    background: #f8f8f8;
+    border-radius: 12px;
+
+    p {
+      margin: 0 0 8px 0;
+      font-size: 13px;
+      color: #666666;
+      line-height: 1.5;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  &__total {
+    margin-top: 12px !important;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+    font-size: 15px !important;
+
+    strong {
+      color: #FF2400;
+      font-size: 18px;
+    }
+  }
+}
+
+// Кнопки управления бонусом
+.bonus-btn {
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &--add {
+    background: #FF2400;
+    color: #ffffff;
+
+    &:hover {
+      background: #e61e00;
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  &--decrease {
+    background: #fff0f0;
+    color: #FF2400;
+    border: 2px solid #FF2400;
+
+    &:hover:not(:disabled) {
+      background: #ffe0e0;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &--reset {
+    background: #f5f5f5;
+    color: #666666;
+    border: 2px solid #dddddd;
+
+    &:hover:not(:disabled) {
+      background: #eeeeee;
+      border-color: #cccccc;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Анимации
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 36, 0, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(255, 36, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 36, 0, 0);
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Индикатор позиции скролла
+.delivery-bonus-panel::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 20px;
+  background: rgba(255, 36, 0, 0.2);
+  pointer-events: none;
+  z-index: 10;
+}

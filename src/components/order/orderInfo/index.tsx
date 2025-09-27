@@ -16,6 +16,7 @@ import Size from './Size'
 import BigTruckCargoWeight from './BigTruckCargoWeight'
 import BigTruckCars from './BigTruckCars'
 import BigTruckServices from './BigTruckServices'
+import CurrentPrice from './CurrentPrice'
 
 interface IProps {
   order?: IOrder | null
@@ -25,6 +26,7 @@ const OrderInfo: React.FC<IProps> = ({ order }) => {
   if (!order) return null
 
   return <div className="order-info">
+    <CurrentPrice order={order} />
     <OrderPhone order={order} />
     <Rooms order={order} />
     <Attachments order={order} />

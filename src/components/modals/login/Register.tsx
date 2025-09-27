@@ -23,7 +23,6 @@ import { useVisibility } from '../../../tools/hooks'
 import { ISelectOption } from '../../../types'
 import { normalizePhoneNumber } from '../../../tools/phoneUtils'
 import { Input } from './elements'
-
 const mapStateToProps = (state: IRootState) => {
   return {
     user: userSelectors.user(state),
@@ -33,15 +32,12 @@ const mapStateToProps = (state: IRootState) => {
     response: userSelectors.registerResponse(state),
   }
 }
-
 const mapDispatchToProps = {
   register: userActionCreators.register,
   setStatus: userActionCreators.setStatus,
   setMessage: userActionCreators.setMessage,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IFormValues {
   u_name: string;
   u_phone: string;
@@ -64,11 +60,9 @@ interface IFormValues {
   car_color: string
   car_classes: string
 }
-
 interface IProps extends ConnectedProps<typeof connector> {
   isOpen: boolean;
 }
-
 const getYupImageSchema = (isRequired: boolean = false) => {
   const schema = yup
     .mixed()
@@ -84,10 +78,8 @@ const getYupImageSchema = (isRequired: boolean = false) => {
     })
   return isRequired ? schema : schema.required(TRANSLATION.REQUIRED_FILE)
 }
-
 const getYupSchema = (schema: any, isRequired: boolean = false) =>
   isRequired ? schema.required(t(TRANSLATION.REQUIRED_FIELD)) : schema
-
 const RegisterForm: React.FC<IProps> = ({
   status,
   message,
@@ -107,24 +99,19 @@ const RegisterForm: React.FC<IProps> = ({
         }
       }, {})
   }, [])
-
   const location = useLocation()
-
   const [showRefCode, setShowRefCode] = useState(false)
   const [workType, setWorkType] = useState<EWorkTypes | null>(null)
   const [isRegistrationAlertVisible, toggleRegistrationAlertVisibility] = useVisibility(false)
   const [isWhatsappAlertVisible, toggleWhatsappAlertVisibility] = useVisibility(false)
   const [shouldSendToWhatsapp, setShouldSendToWhatsapp] = useState(false)
   const [filesMap, setFilesMap] = useState<TFilesMap>({ passport_photo: [], driver_license_photo: [], license_photo: [] })
-
   const [data, setData] = useState<{
     car_models: any
     car_colors: any
     car_classes: any
   } | null>(null)
-
   const isDefaultDriver = location.pathname.includes('/driver-order')
-
   const schema = yup.object({
     type: getYupSchema(yup.string(), isDefaultDriver),
     u_name: yup.string().required(t(TRANSLATION.REQUIRED_FIELD)).trim(),
@@ -148,7 +135,6 @@ const RegisterForm: React.FC<IProps> = ({
     driver_license_photo: isDefaultDriver ? getYupImageSchema(requireFeildsMap.driver_license_photo) : yup.string(),
     license_photo: isDefaultDriver ? getYupImageSchema(requireFeildsMap.license_photo) : yup.string(),
   })
-
   const {
     register: formRegister,
     handleSubmit,
@@ -164,22 +150,17 @@ const RegisterForm: React.FC<IProps> = ({
     },
     resolver: yupResolver(schema),
   })
-
   const { type, u_phone, u_role } = useWatch<IFormValues>({ control })
-
   let whatsappResponseMessage = ''
-
   useEffect(() => {
     if (isOpen && isRegistrationAlertVisible) {
       toggleRegistrationAlertVisibility()
     }
   }, [isOpen])
-
   useEffect(() => {
     if (status === EStatuses.Fail && !isRegistrationAlertVisible) {
       toggleRegistrationAlertVisibility()
     }
-
     // if (status === EStatuses.Success && type === ERegistrationType.Phone && shouldSendToWhatsapp) {
     //   if (response) {
     //     axios.post(`${WHATSAPP_BOT_URL}/send-message`,
@@ -205,10 +186,8 @@ const RegisterForm: React.FC<IProps> = ({
     //   }
     // }
   }, [status])
-
   useEffect(() => {
     let newData = (window as any).data
-
     if (newData && (data === null || data === undefined)) {
       setData({
         car_models: newData.car_models,
@@ -217,7 +196,6 @@ const RegisterForm: React.FC<IProps> = ({
       })
     }
   }, [])
-
   useEffect(() => {
     if (type !== ERegistrationType.Email) {
       setValue('u_email', '')
@@ -226,16 +204,12 @@ const RegisterForm: React.FC<IProps> = ({
       setValue('u_phone', '')
     }
   }, [type])
-
   if (tab !== LOGIN_TABS_IDS[1]) return null
-
   const onSubmit = (data: IFormValues) => {
     if (getPhoneError(u_phone, type === ERegistrationType.Phone)) return
-
     if (isRegistrationAlertVisible) {
       toggleRegistrationAlertVisibility()
     }
-
     let upload: any[] = []
     if (filesMap.passport_photo) {
       Array.from(filesMap.passport_photo).forEach(file => {
@@ -252,12 +226,7 @@ const RegisterForm: React.FC<IProps> = ({
         upload.push({ name: 'license_photo', file })
       })
     }
-
-    console.log('Phone number from form:', data.u_phone)
     const normalizedPhone = normalizePhoneNumber(data.u_phone, true, Number(u_role) === EUserRoles.Driver)
-    console.log('Normalized phone number:', normalizedPhone)
-    console.log('Is driver:', Number(u_role) === EUserRoles.Driver)
-
     register({
       u_name: data.u_name,
       u_phone: normalizedPhone,
@@ -282,39 +251,31 @@ const RegisterForm: React.FC<IProps> = ({
       uploads: upload,
     })
   }
-
   const prepareOptions = (data: any, key: string) => {
     let options: ISelectOption[] = []
-
     if (!data) {
       return options
     }
-
     Object.keys(data).forEach((datum: any, index: number) => {
       if (key === TRANSLATION.CAR_CLASSES && index === 0) {
         return
       }
-
       options.push({
         value: datum,
         label: t(key[datum]),
       })
     })
-
     return options
   }
-
   const seatsOptions = () => {
     return Array(20).fill(0).map((_, i) => {
       let value = String(i + 1)
-
       return {
         value,
         label: value,
       }
     })
   }
-
   const isDriver = Number(u_role) === EUserRoles.Driver
   let isValidFrom = isValid
   if (isDriver && requireFeildsMap.passport_photo && !filesMap.passport_photo.length) isValidFrom = false
@@ -333,7 +294,6 @@ const RegisterForm: React.FC<IProps> = ({
           { label: t(TRANSLATION.COMPANY), value: EWorkTypes.Company },
         ]}
       />}
-
       <Input
         inputProps={{
           ...formRegister('u_name', {
@@ -359,7 +319,6 @@ const RegisterForm: React.FC<IProps> = ({
         inputType={EInputTypes.Default}
         error={getPhoneError(u_phone, type === ERegistrationType.Phone)}
       />
-
       {/*{type === ERegistrationType.Phone && (*/}
       {/*  <Checkbox*/}
       {/*    type="checkbox"*/}
@@ -373,7 +332,6 @@ const RegisterForm: React.FC<IProps> = ({
       {/*    }}*/}
       {/*  />*/}
       {/*)}*/}
-
       <Input
         inputProps={{
           ...formRegister('u_email', {
@@ -384,7 +342,6 @@ const RegisterForm: React.FC<IProps> = ({
         label={t(TRANSLATION.EMAIL)}
         error={errors.u_email?.message}
       />
-
       <Checkbox
         {...formRegister('type')}
         type="radio"
@@ -400,7 +357,6 @@ const RegisterForm: React.FC<IProps> = ({
         value={ERegistrationType.Email}
         id="email"
       />
-
       {isDriver && (
         <Input
           inputProps={{
@@ -414,7 +370,6 @@ const RegisterForm: React.FC<IProps> = ({
           fieldWrapperClassName="street"
         />
       )}
-
       {isDriver && (
         <Input
           inputProps={{
@@ -427,7 +382,6 @@ const RegisterForm: React.FC<IProps> = ({
           error={errors.city?.message}
         />
       )}
-
       {isDriver && (
         <Input
           inputProps={{
@@ -440,7 +394,6 @@ const RegisterForm: React.FC<IProps> = ({
           error={errors.state?.message}
         />
       )}
-
       {isDriver && (
         <Input
           inputProps={{
@@ -458,18 +411,16 @@ const RegisterForm: React.FC<IProps> = ({
           error={errors.card?.message}
         />
       )}
-
       {/* {isDriver && (
         <Input
           label='Document type'
-          options={prepareOptions(data?.car_models, TRANSLATION.CAR_MODELS)} //TODO: изменить на типы документов
+          options={prepareOptions(data?.car_models, TRANSLATION.CAR_MODELS)} 
           inputProps={{
             ...formRegister('document_type'),
           }}
           inputType={EInputTypes.Select}
         />
       )} */}
-
       {isDriver && (
         <Input
           onChange={(e) => {
@@ -489,7 +440,6 @@ const RegisterForm: React.FC<IProps> = ({
           error={errors.passport_photo?.message?.toString()}
         />
       )}
-
       {isDriver && (
         <Input
           onChange={(e) => {
@@ -509,7 +459,6 @@ const RegisterForm: React.FC<IProps> = ({
           error={errors.driver_license_photo?.message?.toString()}
         />
       )}
-
       {isDriver && (
         <Input
           onChange={(e) => {
@@ -529,7 +478,6 @@ const RegisterForm: React.FC<IProps> = ({
           error={errors.license_photo?.message?.toString()}
         />
       )}
-
       <Checkbox
         type="checkbox"
         name="ref_code_toggle"
@@ -538,7 +486,6 @@ const RegisterForm: React.FC<IProps> = ({
         onChange={(e) => setShowRefCode(e.target.checked)}
         wrapperAdditionalClassName="ref-code__toggler"
       />
-
       <Input
         inputProps={{
           ...formRegister('ref_code'),
@@ -547,7 +494,6 @@ const RegisterForm: React.FC<IProps> = ({
           'ref-code__input--active': showRefCode,
         })}
       />
-
       {isDriver && (
         <Input
           label='Car models'
@@ -558,7 +504,6 @@ const RegisterForm: React.FC<IProps> = ({
           inputType={EInputTypes.Select}
         />
       )}
-
       {isDriver && (
         <Input
           label={t(TRANSLATION.SEATS)}
@@ -570,14 +515,12 @@ const RegisterForm: React.FC<IProps> = ({
           options={seatsOptions()}
         />
       )}
-
       {isDriver && (
         <Input
           label={'Car number'}
           inputProps={{ ...formRegister('car_number') }}
         />
       )}
-
       {isDriver && (
         <Input
           label={'Car color'}
@@ -586,7 +529,6 @@ const RegisterForm: React.FC<IProps> = ({
           options={prepareOptions(data?.car_colors, TRANSLATION.CAR_COLORS)}
         />
       )}
-
       {isDriver && (
         <Input
           label={'Car classes'}
@@ -595,8 +537,6 @@ const RegisterForm: React.FC<IProps> = ({
           options={prepareOptions(data?.car_classes, TRANSLATION.CAR_CLASSES)}
         />
       )}
-
-
       {isRegistrationAlertVisible && (
         <div className="alert-container">
           <Alert
@@ -612,7 +552,6 @@ const RegisterForm: React.FC<IProps> = ({
           />
         </div>
       )}
-
       {isWhatsappAlertVisible && (
         <div className="alert-container">
           <Alert
@@ -622,7 +561,6 @@ const RegisterForm: React.FC<IProps> = ({
           />
         </div>
       )}
-
       <Button
         type="submit"
         text={t(TRANSLATION.SIGNUP)}
@@ -635,5 +573,4 @@ const RegisterForm: React.FC<IProps> = ({
     </form>
   )
 }
-
 export default connector(RegisterForm)

@@ -9,7 +9,6 @@ import { normalizePhoneNumber } from '../../../tools/phoneUtils'
 import Alert from '../../Alert/Alert'
 import {Intent} from "../../Alert";
 import {t, TRANSLATION} from "../../../localization";
-
 const mapStateToProps = (state: IRootState) => {
   return {
     user: userSelectors.user(state),
@@ -19,19 +18,15 @@ const mapStateToProps = (state: IRootState) => {
     response: userSelectors.registerResponse(state),
   }
 }
-
 const mapDispatchToProps = {
   register: userActionCreators.register,
   setStatus: userActionCreators.setStatus,
   setMessage: userActionCreators.setMessage,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IProps extends ConnectedProps<typeof connector> {
   isOpen: boolean;
 }
-
 const RegisterForm: ({status, message, register}: {
   status: any;
   message: any;
@@ -42,30 +37,21 @@ const RegisterForm: ({status, message, register}: {
   register,
 }) => {
   const [formValues, setFormValues] = useState({})
-
   const handleSubmit = (values: any) => {
-    console.log('Phone number from form:', values.u_phone)
     const isDriver = values.u_role === EUserRoles.Driver
-    console.log('Is driver:', isDriver)
-    
     if (isDriver) {
       const normalizedPhone = normalizePhoneNumber(values.u_phone, true, true)
-      console.log('Normalized phone number:', normalizedPhone)
       values.u_phone = normalizedPhone
     }
-    
     values.st = 1
     register(values)
   }
-
   const handleChange = (fieldName: string, value: any) => {
-    console.log('Field changed:', fieldName, 'New value:', value)
     setFormValues(prev => ({
       ...prev,
       [fieldName]: value
     }))
   }
-
   const formStr = (window as any).data?.site_constants?.form_register?.value
   let form
   try {
@@ -73,7 +59,6 @@ const RegisterForm: ({status, message, register}: {
   } catch (e) {
     return <ErrorFrame title='Bad json in data.js' />
   }
-  console.log('Form error:', message, 'status:', status)
   if(message!==undefined && message !== 'register_fail') {
       form.fields.map( (field: any) => {
           if (field.component === 'alert' && status === EStatuses.Fail) {
@@ -93,5 +78,4 @@ const RegisterForm: ({status, message, register}: {
       }}
   />
 }
-
 export default connector(RegisterForm)

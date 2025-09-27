@@ -22,6 +22,7 @@ const defaultRecord: IClientOrderState = {
   phone: null,
   phoneEdited: false,
   customerPrice: null,
+  deliveryTip: 0,  // Чаевые "На подачу" для стимулирования водителей
   selectedOrder: null,
   status: EStatuses.Default,
   message: '',
@@ -120,6 +121,9 @@ export default function(state = new record(), action: TAction) {
     case ActionTypes.SET_CUSTOMER_PRICE:
       return state
         .set('customerPrice', payload)
+    case ActionTypes.SET_DELIVERY_TIP:
+      return state
+        .set('deliveryTip', payload)
     case ActionTypes.SET_SELECTED_ORDER:
       return state
         .set('selectedOrder', payload)

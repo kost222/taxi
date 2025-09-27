@@ -67,8 +67,8 @@ function LocationInput({
   const [suggestions, setSuggestions] = useState<ISuggestion[]>([])
 
   const locationClassData = SITE_CONSTANTS.BOOKING_LOCATION_CLASSES
-    .find(({ id }) => id === locationClass)!
-  const isIntercity = locationClassData.kind === EBookingLocationKinds.Intercity
+    .find(({ id }) => id === locationClass)
+  const isIntercity = locationClassData?.kind === EBookingLocationKinds.Intercity
   useEffect(() => {
     debouncedGetPointSuggestion(setSuggestions, point?.address, isIntercity)
   }, [point, isIntercity])

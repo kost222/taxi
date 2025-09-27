@@ -1,4 +1,6 @@
 import { PassengerOrderConfig } from './tools/siteConstants/formConfig'
+import { getWindowData, getSiteConstant } from './types/window'
+import { logger } from './utils/logger'
 import {
   parseAvailableModes,
   parseCarClasses,
@@ -194,18 +196,19 @@ class Constants {
       defaultValues.BIG_TRUCK_CARGO_TYPES,
       parseEntries,
     )
+    const windowData = getWindowData()
     this.CAR_CLASSES = parseCarClasses(
-      (window as any).data?.car_classes ?? defaultValues.CAR_CLASSES,
+      windowData?.car_classes ?? defaultValues.CAR_CLASSES,
     )
     this.DEFAULT_CAR_CLASS = Object.keys(this.CAR_CLASSES)?.[0] ?? '-1'
-    this.BOOKING_COMMENTS = (window as any).data?.booking_comments ?
+    this.BOOKING_COMMENTS = windowData?.booking_comments ?
       Object.fromEntries(
         Object.entries(defaultValues.BOOKING_COMMENTS)
-          .filter(([id]) => id in (window as any).data.booking_comments),
+          .filter(([id]) => id in windowData.booking_comments),
       ) :
       defaultValues.BOOKING_COMMENTS
     this.BOOKING_LOCATION_CLASSES = parseBookingLocationClasses(
-      (window as any).data?.booking_location_classes ??
+      windowData?.booking_location_classes ??
         defaultValues.BOOKING_LOCATION_CLASSES,
     )
     this.DEFAULT_BOOKING_LOCATION_CLASS =
@@ -215,8 +218,8 @@ class Constants {
       defaultValues.CALCULATION_BENEFITS,
       parseCalculationBenefits,
     )
-    this.LANGUAGES = parseLanguages((window as any).data?.langs || defaultValues.LANGUAGES)
-    console.log('CONSTANTS LANGUAGES', this.LANGUAGES)
+    this.LANGUAGES = parseLanguages(windowData?.langs || defaultValues.LANGUAGES)
+    logger.debug('CONSTANTS LANGUAGES', this.LANGUAGES)
   }
 
   calc_ENABLE_CUSTOMER_PRICE() {
@@ -247,7 +250,7 @@ class Currency {
   }
 
   getCurrency(key: string) {
-    const _data = (window as any).data
+    const _data = getWindowData()
 
     return _data && _data[CURRENCIES_SECTION] && _data[CURRENCIES_SECTION][key] ? _data[CURRENCIES_SECTION][key] : null
   }
@@ -256,7 +259,7 @@ class Currency {
 export const CURRENCY = new Currency()
 
 export const getConstantValue = <T = any>(key: string | number, defaultValue: T, converter?: (value: any) => any) => {
-  const _data = (window as any).data
+  const _data = getWindowData()
 
   let value = (
     _data &&
@@ -280,5 +283,11 @@ export function getApiConstants(): {
   },
   [key: string]: any
   } {
-  return (window as any).data
+  const data = getWindowData()
+  if (data && data.langs) {
+    return data as any
+  }
+  return {
+    langs: {}
+  }
 }

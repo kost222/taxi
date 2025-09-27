@@ -9,37 +9,29 @@ import { modalsActionCreators, modalsSelectors } from '../../state/modals'
 import { IRootState } from '../../state'
 import Overlay from './Overlay'
 import { orderSelectors } from '../../state/order'
-
 const mapStateToProps = (state: IRootState) => ({
   isOpen: modalsSelectors.isDriverCancelModalOpen(state),
   selectedOrderId: orderSelectors.selectedOrderId(state),
 })
-
 const mapDispatchToProps = {
   setDriverCancelModal: modalsActionCreators.setDriverCancelModal,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IProps extends ConnectedProps<typeof connector> {
 }
-
 const CancelDriverOrderModal: React.FC<IProps> = ({
   isOpen,
   setDriverCancelModal,
   selectedOrderId,
 }) => {
   const navigate = useNavigate()
-
   const onCancel = () => {
-    console.log('onCancel', selectedOrderId)
     if (selectedOrderId) {
       API.cancelDrive(selectedOrderId)
       navigate('/driver-order')
     }
     setDriverCancelModal(false)
   }
-
   return (
     <Overlay
       isOpen={isOpen}
@@ -67,5 +59,4 @@ const CancelDriverOrderModal: React.FC<IProps> = ({
     </Overlay>
   )
 }
-
 export default connector(CancelDriverOrderModal)

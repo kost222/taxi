@@ -12,25 +12,20 @@ import './styles.scss'
 import Overlay from './Overlay'
 import * as API from '../../API'
 import { EBookingDriverState, EColorTypes, EStatuses } from '../../types/types'
-
 const mapStateToProps = (state: IRootState) => ({
   isOpen: modalsSelectors.isOnTheWayModalOpen(state),
   selectedOrder: clientOrderSelectors.selectedOrder(state),
   activeOrders: ordersSelectors.activeOrders(state),
 })
-
 const mapDispatchToProps = {
   setOnTheWayModal: modalsActionCreators.setOnTheWayModal,
   setRatingModal: modalsActionCreators.setRatingModal,
   setMessageModal: modalsActionCreators.setMessageModal,
   setAlarmModal: modalsActionCreators.setAlarmModal,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IProps extends ConnectedProps<typeof connector> {
 }
-
 const OnTheWayModal: React.FC<IProps> = ({
   isOpen,
   selectedOrder,
@@ -42,9 +37,7 @@ const OnTheWayModal: React.FC<IProps> = ({
 }) => {
   const [seconds, setSeconds] = useState(0)
   const order = activeOrders?.find(item => item.b_id === selectedOrder)
-
   const duration = moment.duration(seconds * 1000)
-
   useInterval(() => {
     setSeconds(
       order?.b_start_datetime ?
@@ -52,7 +45,6 @@ const OnTheWayModal: React.FC<IProps> = ({
         0,
     )
   }, 1000)
-
   const handleCloseDriveClick = () => {
     selectedOrder && API.setOrderState(selectedOrder, EBookingDriverState.Finished)
       .then(() => {
@@ -60,11 +52,9 @@ const OnTheWayModal: React.FC<IProps> = ({
         setRatingModal({ isOpen: true, orderID: selectedOrder })
       })
       .catch(error => {
-        console.error(error)
         setMessageModal({ isOpen: true, message: t(TRANSLATION.ERROR), status: EStatuses.Fail })
       })
   }
-
   return (
     <Overlay
       isOpen={isOpen}
@@ -95,5 +85,4 @@ const OnTheWayModal: React.FC<IProps> = ({
     </Overlay>
   )
 }
-
 export default connector(OnTheWayModal)

@@ -23,6 +23,8 @@ export const setPhone = (payload: IClientOrderState['phone']) =>
   ({ type: ActionTypes.SET_PHONE, payload })
 export const setCustomerPrice = (payload: IClientOrderState['customerPrice']) =>
   ({ type: ActionTypes.SET_CUSTOMER_PRICE, payload })
+export const setDeliveryTip = (payload: IClientOrderState['deliveryTip']) =>
+  ({ type: ActionTypes.SET_DELIVERY_TIP, payload })
 export const reset = () =>
   ({ type: ActionTypes.RESET })
 export const setMessage = (payload: IClientOrderState['message']) =>

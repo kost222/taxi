@@ -59,7 +59,7 @@ const Slider: React.FC<IProps> = ({
   setDeleteFilesModal,
 }) => {
   const [id] = useState(`g${+new Date()}`)
-  const [glide, setGlide] = useState<Glide.Properties | null>(null)
+  const [glide, setGlide] = useState<any>(null)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [showThumbnails, setShowThumbnails] = useState<number | null>(null)
 

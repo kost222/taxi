@@ -6,11 +6,9 @@ import * as API from '../../API'
 import { ActionTypes } from './constants'
 import { getArea } from './actionCreators'
 import { area } from './selectors'
-
 export function* saga() {
   yield all([
     call(function*() {
-
       const runningRequests = new Set<IArea['id']>()
       while (true) {
         const action: TAction = yield take(ActionTypes.GET_AREA_REQUEST)
@@ -26,7 +24,6 @@ export function* saga() {
           }
         })
       }
-
     }),
     takeEvery(
       ActionTypes.GET_AREAS_BETWEEN_POINTS_REQUEST,
@@ -34,18 +31,15 @@ export function* saga() {
     ),
   ])
 }
-
 function* getAreaSaga(action: TAction) {
   const id: IArea['id'] = action.payload
   try {
     const area = yield* call<IArea>(API.getArea, id)
     yield put({ type: ActionTypes.GET_AREA_SUCCESS, payload: area })
   } catch (e) {
-    console.error(e)
     yield put({ type: ActionTypes.GET_AREA_FAIL, payload: e })
   }
 }
-
 function* getAreasBetweenPointsSaga(action: TAction) {
   const points: [number, number][] = action.payload
   try {
@@ -57,7 +51,6 @@ function* getAreasBetweenPointsSaga(action: TAction) {
       if (!(yield* select<IArea | undefined>(area, id)))
         yield put(getArea(id))
   } catch (e) {
-    console.error(e)
     yield put({ type: ActionTypes.GET_AREA_FAIL, payload: e })
   }
 }

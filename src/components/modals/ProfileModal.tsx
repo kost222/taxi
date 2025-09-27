@@ -13,30 +13,26 @@ import { EStatuses, EUserRoles, ILanguage } from '../../types/types'
 import { getBase64 } from '../../tools/utils'
 import { configSelectors, configActionCreators } from '../../state/config'
 import * as API from '../../API'
+import { showError } from '../../utils/notifications'
 import JSONForm from '../JSONForm'
 import SITE_CONSTANTS from '../../siteConstants'
 import { formatPhoneNumber, normalizePhoneNumber } from '../../tools/phoneUtils'
 import './styles.scss'
-
 const mapStateToProps = (state: IRootState) => ({
   tokens: userSelectors.tokens(state),
   user: userSelectors.user(state),
   language: configSelectors.language(state),
   isOpen: modalsSelectors.isProfileModalOpen(state),
 })
-
 const mapDispatchToProps = {
   setProfileModal: modalsActionCreators.setProfileModal,
   setMessageModal: modalsActionCreators.setMessageModal,
   updateUser: userActionCreators.initUser,
   setLanguage: configActionCreators.setLanguage,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IProps extends ConnectedProps<typeof connector> {
 }
-
 const CardDetailsModal: React.FC<IProps> = ({
   tokens,
   user,
@@ -54,14 +50,12 @@ const CardDetailsModal: React.FC<IProps> = ({
     getBase64(file)
       .then((base64: any) => API.editUser({ u_photo: base64 }))
       .then(() => updateUser())
-      .catch(error => alert(JSON.stringify(error)))
+      .catch(error => showError('Ошибка при обновлении фото: ' + (error.message || JSON.stringify(error))))
   }, [user, tokens])
-
   const [ isValuesLoaded, setIsValuesLoaded ] = useState(false)
   const [ isSubmittingForm, setIsSubmittingForm ] = useState(false)
   const [ defaultValues, setDefaultValues ] = useState({})
   const [ errors, setErrors ] = useState<Record<string, any>>({})
-
   useEffect(() => {
     if (!isOpen) return
     const passportImgs = user?.u_details?.passport_photo || []
@@ -96,24 +90,18 @@ const CardDetailsModal: React.FC<IProps> = ({
         })
       })
   }, [isOpen])
-
   const handleChange = useCallback((name: string, value: any) => {
     setErrors({
       ...errors,
       [name]: false,
     })
   }, [errors])
-
   const handleSubmitForm = useCallback((values: Record<string, any>) => {
-    console.log('VALUES: ',values)
     const isChangeRefCode = values.ref_code !== user?.ref_code
-
     const apiValues = { ...values };
-    
     if (apiValues.u_phone) {
       apiValues.u_phone = normalizePhoneNumber(apiValues.u_phone, false, user?.u_role === EUserRoles.Driver);
     }
-
     let beforeSave = Promise.resolve(true)
     if (isChangeRefCode) {
       beforeSave = API.checkRefCode(apiValues.ref_code)
@@ -127,11 +115,9 @@ const CardDetailsModal: React.FC<IProps> = ({
           return true
         })
     }
-
     beforeSave.then((isSuccessBefore) => {
       if (!isSuccessBefore) return
       setIsSubmittingForm(true)
-
       if (user?.u_role === EUserRoles.Client) {
         return API.editUser(apiValues)
           .then(res => {
@@ -144,9 +130,7 @@ const CardDetailsModal: React.FC<IProps> = ({
             setIsSubmittingForm(false)
           })
       }
-
       const { u_details, u_car } = apiValues
-
       API.editCar(u_car)
         .then(res => {
           const isError = res?.data?.message === 'busy registration plate'
@@ -158,7 +142,6 @@ const CardDetailsModal: React.FC<IProps> = ({
             setIsSubmittingForm(false)
             return
           }
-
           const imagesKeys = ['passport_photo', 'driver_license_photo']
           const images = [u_details?.passport_photo || [], u_details?.driver_license_photo || []]
           const imagesMap: Record<string, any> = {}
@@ -204,11 +187,9 @@ const CardDetailsModal: React.FC<IProps> = ({
         })
     })
   }, [])
-
   const formState = useMemo(() => ({
     pending: isSubmittingForm,
   }), [isSubmittingForm])
-
   const formStr = (window as any).data?.site_constants?.form_profile?.value
   let form
   try {
@@ -216,12 +197,10 @@ const CardDetailsModal: React.FC<IProps> = ({
   } catch (e) {
     return <ErrorFrame title='Bad json in data.js' />
   }
-
   if (user?.u_role === EUserRoles.Client) {
     const userFields = ['u_name', 'u_phone', 'u_email', 'ref_code', 'u_details.subscribe', 'submit']
     form.fields = form.fields.filter((field: any) => userFields.includes(field.name))
   }
-
   const toggleLanguagesOpened = () => setLanguagesOpened(prev => !prev)
   return isOpen && (
     <Overlay
@@ -285,6 +264,4 @@ const CardDetailsModal: React.FC<IProps> = ({
     </Overlay>
   )
 }
-
 export default connector(CardDetailsModal)
-

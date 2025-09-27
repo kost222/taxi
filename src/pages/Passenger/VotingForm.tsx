@@ -1,26 +1,18 @@
-import React, {
-  useState, useRef, useLayoutEffect, useEffect,
-  useMemo, useCallback, useImperativeHandle,
-} from 'react'
+import React, { useState, useRef, useLayoutEffect, useEffect, useMemo, useCallback, useImperativeHandle } from 'react'
 import { connect, ConnectedProps, useStore } from 'react-redux'
 import moment from 'moment'
-import {
-  EPointType, EPaymentWays, EServices,
-  IOptions,
-} from '../../types/types'
+import { EPointType, EPaymentWays, EServices, IOptions } from '../../types/types'
 import images from '../../constants/images'
 import SITE_CONSTANTS from '../../siteConstants'
 import { getPhoneNumberError } from '../../tools/utils'
+import { detectLocationClass, shouldAutoUpdateLocationClass } from '../../utils/locationClassDetector'
 import * as API from '../../API'
 import { t, TRANSLATION } from '../../localization'
 import { IRootState } from '../../state'
 import { modalsActionCreators } from '../../state/modals'
 import { userSelectors } from '../../state/user'
 import { ordersSelectors, ordersActionCreators } from '../../state/orders'
-import {
-  clientOrderSelectors,
-  clientOrderActionCreators,
-} from '../../state/clientOrder'
+import { clientOrderSelectors, clientOrderActionCreators } from '../../state/clientOrder'
 import Icon from '../../components/Icon'
 import Input, { EInputTypes, EInputStyles } from '../../components/Input'
 import Button, { EButtonStyles } from '../../components/Button'
@@ -29,6 +21,7 @@ import ShortInfo from '../../components/ShortInfo'
 import SeatSlider from '../../components/SeatSlider'
 import CarClassSlider from '../../components/CarClassSlider'
 import PriceInput from '../../components/PriceInput'
+import DeliveryTipInput from '../../components/DeliveryTipInput'
 import './voting-form.scss'
 
 const mapStateToProps = (state: IRootState) => ({
@@ -38,6 +31,8 @@ const mapStateToProps = (state: IRootState) => ({
   comments: clientOrderSelectors.comments(state),
   time: clientOrderSelectors.time(state),
   phone: clientOrderSelectors.phone(state),
+  deliveryTip: clientOrderSelectors.deliveryTip(state),
+  locationClass: clientOrderSelectors.locationClass(state),
   user: userSelectors.user(state),
 })
 
@@ -47,6 +42,7 @@ const mapDispatchToProps = {
   setLoginModal: modalsActionCreators.setLoginModal,
   getActiveOrders: ordersActionCreators.getActiveOrders,
   setPhone: clientOrderActionCreators.setPhone,
+  setLocationClass: clientOrderActionCreators.setLocationClass,
   resetClientOrder: clientOrderActionCreators.reset,
 }
 
@@ -69,12 +65,15 @@ const VotingForm = function VotingForm({
   comments,
   time,
   phone,
+  deliveryTip,
+  locationClass,
   user,
   setPickTimeModal,
   setCommentsModal,
   setLoginModal,
   getActiveOrders,
   setPhone,
+  setLocationClass,
   resetClientOrder,
   isExpanded,
   setIsExpanded,
@@ -84,7 +83,6 @@ const VotingForm = function VotingForm({
   minimizedPartRef,
   noSwipeElementsRef,
 }: IProps) {
-
   const carSliderRef = useRef<HTMLDivElement>(null)
   const seatSliderRef = useRef<HTMLDivElement>(null)
 
@@ -97,24 +95,49 @@ const VotingForm = function VotingForm({
     !activeOrders?.some(order => order.b_voting)
   , [activeOrders])
 
+  // Check if all required fields are filled for Order button
+  const isOrderFormValid = useMemo(() => {
+    return !!(from?.address && to?.address && phone && !getPhoneNumberError(phone))
+  }, [from, to, phone])
+
+  // Check if required fields are filled for Vote button
+  const isVoteFormValid = useMemo(() => {
+    return !!(from?.address && phone && !getPhoneNumberError(phone))
+  }, [from, phone])
+
   const [fromError, setFromError] = useState<string | null>(null)
   useLayoutEffect(() => { setFromError(null) }, [from])
+
   const [toError, setToError] = useState<string | null>(null)
   useLayoutEffect(() => { setToError(null) }, [to])
+
   const [phoneError, setPhoneError] = useState<string | null>(null)
   useLayoutEffect(() => { setPhoneError(null) }, [phone])
+
   useEffect(() => {
     if (phoneError)
       setIsExpanded(true)
   }, [phoneError])
 
+  // Автоматически определяем класс локации при изменении координат
+  useEffect(() => {
+    if (shouldAutoUpdateLocationClass(from, to)) {
+      const detectedClass = detectLocationClass(from, to)
+      if (detectedClass !== locationClass) {
+        setLocationClass(detectedClass)
+      }
+    }
+  }, [from, to, locationClass, setLocationClass])
+
   const store = useStore<IRootState>()
+
   const submit = useCallback(async(voting = false) => {
     setSubmitError(null)
-
     const state = store.getState()
     const carClass = clientOrderSelectors.carClass(state)
     const seats = clientOrderSelectors.seats(state)
+    const deliveryTipAmount = clientOrderSelectors.deliveryTip(state)
+    const currentLocationClass = clientOrderSelectors.locationClass(state)
 
     let error = false
     if (!from?.address) {
@@ -151,6 +174,7 @@ const VotingForm = function VotingForm({
     let options: IOptions = {
       fromShortAddress: from?.shortAddress,
       toShortAddress: to?.shortAddress,
+      deliveryTip: deliveryTipAmount, // Добавляем чаевые в опции заказа
     }
 
     setSubmitting(true)
@@ -167,12 +191,12 @@ const VotingForm = function VotingForm({
         b_start_datetime: startTime,
         b_passengers_count: seats,
         b_car_class: carClass,
+        b_location_class: currentLocationClass,
         b_payment_way: EPaymentWays.Cash,
         b_max_waiting: voting ? SITE_CONSTANTS.WAITING_INTERVAL : 7200,
         b_services: voting ? [EServices.Voting.toString()] : [],
         b_options: options,
       })
-
       resetClientOrder()
       getActiveOrders()
       onSubmit(data)
@@ -181,7 +205,6 @@ const VotingForm = function VotingForm({
         (error as any)?.message?.toString() ||
         t(TRANSLATION.ERROR),
       )
-      console.error(error)
     }
     setSubmitting(false)
   }, [
@@ -204,7 +227,7 @@ const VotingForm = function VotingForm({
             checkLogin={false}
             text={t(TRANSLATION.VOTE, { toUpper: false })}
             onClick={() => submit(true)}
-            disabled={!available || submitting}
+            disabled={!available || submitting || !isVoteFormValid}
           />
           <Button
             wrapperProps={{ className: 'passenger-voting-form__order-button' }}
@@ -213,10 +236,10 @@ const VotingForm = function VotingForm({
             checkLogin={false}
             text={t(TRANSLATION.TO_ORDER, { toUpper: false })}
             onClick={() => submit()}
-            disabled={!available || submitting}
+            disabled={!available || submitting || !isOrderFormValid}
           />
         </>
-      , [available, submitting, submit])}
+      , [available, submitting, submit, isVoteFormValid, isOrderFormValid])}
       {submitError &&
         <span className="passenger-voting-form__order-button-error">
           {submitError}
@@ -254,9 +277,7 @@ const VotingForm = function VotingForm({
             />
           , [syncTo, toError])}
         </div>
-
         {useMemo(() => !isExpanded && <ShortInfo />, [isExpanded])}
-
         {!isExpanded && submitButtons}
       </div>
 
@@ -271,7 +292,6 @@ const VotingForm = function VotingForm({
             </div>
           </div>
         , [])}
-
         {useMemo(() =>
           <div className="passenger-voting-form__time">
             <div className="passenger-voting-form__time-wrapper">
@@ -366,12 +386,17 @@ const VotingForm = function VotingForm({
           }}
         />
       , [phone, setPhone, user, phoneError])}
+
+      {/* Компонент для чаевых "На подачу" */}
+      {useMemo(() =>
+        <DeliveryTipInput className="passenger-voting-form__delivery-tip" />
+      , [])}
+
       {useMemo(() => SITE_CONSTANTS.ENABLE_CUSTOMER_PRICE &&
         <PriceInput className="passenger-voting-form__input" />
       , [])}
 
       {isExpanded && submitButtons}
-
     </form>
   )
 }

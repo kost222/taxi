@@ -7,7 +7,6 @@ import { TFormElement, TOption, TFormValues } from './types'
 import './styles.scss'
 import { t } from '../../localization'
 import { formatPhoneNumber, getPhoneMask } from '../../tools/phoneUtils'
-
 const JSONFormElement = (props: {
     element: TFormElement,
     validationSchema?: any,
@@ -34,7 +33,6 @@ const JSONFormElement = (props: {
     options = [],
     validation = {},
   } = props.element
-
   const [ errorMessage, setErrorMessage ] = useState<string>('')
   const [ files, setFiles ] = useState<[any, File][]>()
   const name: string = getCalculation(props.element.name, values, variables)
@@ -45,13 +43,11 @@ const JSONFormElement = (props: {
   if (!hint && getTranslation(hintTextName) !== hintTextName) {
     hint = getTranslation(hintTextName)
   }
-
   useEffect(() => {
     if (type === 'file' && value) {
       setFiles(value)
     }
   }, [])
-
   const validate = useCallback((value: any) => {
     if (!validationSchema) return
     const empty = getCalculation(validation.required, values, variables) ? '' : null
@@ -63,23 +59,16 @@ const JSONFormElement = (props: {
         setErrorMessage(error.message)
       })
   }, [])
-
   if (visible) {
     const isVisible = getCalculation(visible, values, variables)
     if (!isVisible) return null
   }
-
   const commonProperties = {
     name,
     disabled: parseVariable(getCalculation(disabled, values, variables), variables),
     onChange: (e: any) => {
       const empty = getCalculation(validation?.required, values, variables) ? '' : null
       const value = e.target.value === '' ? empty : e.target.value
-      if (type === 'select') {
-        console.log('Select field name:', name)
-        console.log('Selected value:', value)
-        console.log('Available options:', getCalculation(options, values, variables))
-      }
       validate(value)
       onChange(e, e.target.name, value)
     },
@@ -89,7 +78,6 @@ const JSONFormElement = (props: {
       validate(value)
     },
   }
-
   let hintElement: any = !hint ?
     null :
     (
@@ -100,7 +88,6 @@ const JSONFormElement = (props: {
         </div>
       </div>
     )
-
   let labelElement: any = !props.element.label ?
     null :
     (
@@ -111,7 +98,6 @@ const JSONFormElement = (props: {
       </div>
     )
   let element
-
   if (type === 'hidden') {
     return (
       <input
@@ -121,7 +107,6 @@ const JSONFormElement = (props: {
       />
     )
   }
-
   if (type === 'button' || type === 'submit') {
     return (
       <Button
@@ -132,7 +117,6 @@ const JSONFormElement = (props: {
       />
     )
   }
-
   if (type === 'select') {
     const selectOptions = getCalculation(options, values, variables)
     element = (
@@ -150,7 +134,6 @@ const JSONFormElement = (props: {
       </select>
     )
   }
-
   if (type === 'radio') {
     const radioOptions = getCalculation(options, values, variables)
     element = (
@@ -171,7 +154,6 @@ const JSONFormElement = (props: {
       </>
     )
   }
-
   if (type === 'checkbox') {
     labelElement = null
     element = (
@@ -194,7 +176,6 @@ const JSONFormElement = (props: {
       </label>
     )
   }
-
   if (type === 'phone') {
     element = (
       <input
@@ -245,7 +226,6 @@ const JSONFormElement = (props: {
       </div>
     )
   }
-
   if (!element) {
     element = (
       <input
@@ -257,11 +237,8 @@ const JSONFormElement = (props: {
       />
     )
   }
-
   const Wrap = ['file', 'radio', 'checkbox'].includes(type) ? 'div' : 'label'
-
   const subscription = type === 'file' && accept === 'image/png, image/jpeg, image/jpg' ? t('subscription_images_upload') : null
-
   return (
     <Wrap className={cn('element__field', {
       'element__field--error': errors[name],
@@ -284,5 +261,4 @@ const JSONFormElement = (props: {
     </Wrap>
   )
 }
-
 export default JSONFormElement

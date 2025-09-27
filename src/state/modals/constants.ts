@@ -36,6 +36,8 @@ export const ActionTypes = {
   SET_CANDIDATES_MODAL: `${prefix}/SET_CANDIDATES_MODAL`,
   SET_DELETE_FILES_MODAL: `${prefix}/SET_DELETE_FILES_MODAL`,
   SET_SHOW_SWITCHERS_MENU: `${prefix}/SET_SHOW_SWITCHERS_MENU`,
+  SET_REVIEW_MODAL: `${prefix}/SET_REVIEW_MODAL`,
+  SET_BOARDING_CODE_MODAL: `${prefix}/SET_BOARDING_CODE_MODAL`,
 } as const
 
 export enum EMapModalTypes {
@@ -101,5 +103,13 @@ export interface IModalsState {
     isOpen: boolean,
     handleDeleteFile?: () => any,
     handleDeleteFiles?: () => any
+  },
+  reviewModal: {
+    isOpen: boolean,
+    orderId?: IOrder['b_id'] | null
+  },
+  boardingCodeModal: {
+    isOpen: boolean,
+    orderId?: IOrder['b_id'] | null
   },
 }

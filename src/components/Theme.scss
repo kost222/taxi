@@ -1,0 +1,22 @@
+// Theme variables using the new design system
+@import '../styles/design-system';
+
+// CSS Variables for runtime theming
+$accent: --accent-color;
+$primary: --primary-color;
+$secondary: --secondary-color;
+
+:root {
+  --accent-color: #{$primary-red};
+  --primary-color: #{$primary-red};
+  --secondary-color: #{$secondary-blue};
+
+  // Additional theme variables
+  --background-primary: #{$bg-primary};
+  --background-secondary: #{$bg-secondary};
+  --text-primary: #{$text-primary};
+  --text-secondary: #{$text-secondary};
+  --border-color: #{$border-default};
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+}

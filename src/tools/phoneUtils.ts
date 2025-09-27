@@ -1,6 +1,8 @@
 /**
  * Utility functions for phone number handling
  */
+import { getSiteConstant } from '../types/window'
+import { logger } from '../utils/logger'
 
 /**
  * Get the phone mask from site constants
@@ -8,7 +10,7 @@
 export const getPhoneMask = (): string => {
   // Маска используется только для отображения формата ввода
   // Например: +34(___)___-___-___ или +34___-___-___
-  return (window as any).data?.site_constants?.def_maska_tel?.value || '+34(___)___-___-___'
+  return getSiteConstant('def_maska_tel') || '+34(___)___-___-___'
 }
 
 /**
@@ -28,36 +30,36 @@ export const getPhonePrefix = (): string => {
  * Replaces the original prefix with +11
  */
 export const normalizePhoneNumber = (phone: string, isRegistration: boolean = false, isDriver: boolean = false): string => {
-  console.log('Normalize phone number input:', { phone, isRegistration, isDriver })
+  logger.debug('Normalize phone number input:', { phone, isRegistration, isDriver })
   const prefix = getPhonePrefix()
-  console.log('Phone prefix from mask:', prefix)
+  logger.debug('Phone prefix from mask:', prefix)
   if (!prefix) return phone
 
   // Удаляем все нецифровые символы (включая скобки, если они были введены)
   const digits = phone.replace(/\D/g, '')
-  console.log('Digits only:', digits)
-  
+  logger.debug('Digits only:', digits)
+
   // Проверяем начало номера с префикса (с + или без)
   // Скобки и другие символы форматирования игнорируются
   const prefixWithoutPlus = prefix.replace('+', '')
-  console.log('Prefix without plus:', prefixWithoutPlus)
-  
+  logger.debug('Prefix without plus:', prefixWithoutPlus)
+
   if (isDriver) {
     // Для водителя всегда заменяем префикс на +11, если номер начинается с префикса маски
     if (digits.startsWith(prefixWithoutPlus)) {
       const result = '+11' + digits.slice(prefixWithoutPlus.length)
-      console.log('Normalized for driver:', result)
+      logger.debug('Normalized for driver:', result)
       return result
     }
     // При входе водителя заменяем +11 на префикс из маски
     if (!isRegistration && digits.startsWith('11')) {
       const result = prefix + digits.slice(2)
-      console.log('Normalized for driver login:', result)
+      logger.debug('Normalized for driver login:', result)
       return result
     }
   }
-  
-  console.log('Phone number unchanged:', phone)
+
+  logger.debug('Phone number unchanged:', phone)
   return phone
 }
 

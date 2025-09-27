@@ -1,0 +1,579 @@
+@import '../../styles/taxi-theme';
+
+.auction-system {
+  @include taxi-card;
+  max-width: 600px;
+  margin: 0 auto;
+
+  .auction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid $border-dark;
+
+    .light-theme & {
+      border-color: $border-light;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 20px;
+      color: $text-dark-primary;
+
+      .light-theme & {
+        color: $text-light-primary;
+      }
+    }
+
+    .auction-timer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 15px;
+      background: $bg-dark-input;
+      border-radius: $radius-button;
+      font-size: 16px;
+      font-weight: 600;
+
+      .light-theme & {
+        background: $bg-light-input;
+      }
+
+      &--urgent {
+        background: rgba($color-error, 0.2);
+        color: $color-error;
+        animation: pulse 1s infinite;
+      }
+
+      .timer-icon {
+        font-size: 20px;
+      }
+    }
+
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: $radius-button;
+      font-size: 14px;
+      font-weight: 500;
+
+      &--ended {
+        background: rgba($color-success, 0.2);
+        color: $color-success;
+      }
+
+      &--cancelled {
+        background: rgba($color-error, 0.2);
+        color: $color-error;
+      }
+    }
+  }
+
+  .auction-info {
+    margin-bottom: 20px;
+
+    .price-info {
+      background: $bg-dark-input;
+      border-radius: $radius-card;
+      padding: 15px;
+      margin-bottom: 15px;
+
+      .light-theme & {
+        background: $bg-light-input;
+      }
+
+      .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+
+        &:not(:last-child) {
+          border-bottom: 1px solid $border-dark;
+
+          .light-theme & {
+            border-color: $border-light;
+          }
+        }
+
+        .label {
+          color: $text-dark-secondary;
+          font-size: 14px;
+
+          .light-theme & {
+            color: $text-light-secondary;
+          }
+        }
+
+        .value {
+          font-size: 18px;
+          font-weight: 600;
+          color: $text-dark-primary;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+
+          .light-theme & {
+            color: $text-light-primary;
+          }
+        }
+
+        &.current {
+          .value {
+            color: $color-primary;
+            font-size: 22px;
+          }
+        }
+
+        &.auto-accept {
+          .label {
+            color: $color-warning;
+          }
+        }
+
+        .discount {
+          padding: 4px 8px;
+          background: rgba($color-success, 0.2);
+          color: $color-success;
+          border-radius: $radius-small;
+          font-size: 12px;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .bid-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+
+      .stat {
+        text-align: center;
+        padding: 15px;
+        background: $bg-dark-input;
+        border-radius: $radius-card;
+
+        .light-theme & {
+          background: $bg-light-input;
+        }
+
+        .stat-value {
+          display: block;
+          font-size: 24px;
+          font-weight: bold;
+          color: $color-primary;
+          margin-bottom: 5px;
+        }
+
+        .stat-label {
+          display: block;
+          font-size: 12px;
+          color: $text-dark-secondary;
+          text-transform: uppercase;
+
+          .light-theme & {
+            color: $text-light-secondary;
+          }
+        }
+      }
+    }
+  }
+
+  .bidding-section {
+    background: rgba($color-primary, 0.05);
+    border: 2px solid rgba($color-primary, 0.2);
+    border-radius: $radius-card;
+    padding: 20px;
+    margin-bottom: 20px;
+
+    .bid-input {
+      margin-bottom: 20px;
+
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: $text-dark-primary;
+        margin-bottom: 10px;
+
+        .light-theme & {
+          color: $text-light-primary;
+        }
+      }
+
+      .input-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+
+        button {
+          width: 40px;
+          height: 40px;
+          border: none;
+          border-radius: 50%;
+          background: $bg-dark-input;
+          color: $text-dark-primary;
+          font-size: 20px;
+          cursor: pointer;
+          transition: all 0.3s;
+
+          &:hover:not(:disabled) {
+            background: $color-primary;
+            color: white;
+            transform: scale(1.1);
+          }
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          .light-theme & {
+            background: $bg-light-input;
+            color: $text-light-primary;
+          }
+        }
+
+        input {
+          flex: 1;
+          @include taxi-input;
+          font-size: 20px;
+          font-weight: 600;
+          text-align: center;
+        }
+      }
+
+      .quick-bids {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+
+        button {
+          padding: 10px;
+          background: $bg-dark-input;
+          border: 1px solid $border-dark;
+          border-radius: $radius-button;
+          color: $text-dark-primary;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.3s;
+
+          &:hover {
+            background: $color-primary;
+            color: white;
+            border-color: $color-primary;
+            transform: translateY(-2px);
+          }
+
+          .light-theme & {
+            background: $bg-light-input;
+            color: $text-light-primary;
+            border-color: $border-light;
+          }
+        }
+      }
+    }
+
+    .auto-bid {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: $bg-dark-card;
+      border-radius: $radius-input;
+
+      .light-theme & {
+        background: $bg-light-card;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        margin-bottom: 15px;
+
+        input[type="checkbox"] {
+          width: 20px;
+          height: 20px;
+          accent-color: $color-primary;
+        }
+
+        span {
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+
+      .auto-bid-limit {
+        label {
+          display: block;
+          font-size: 12px;
+          color: $text-dark-secondary;
+          margin-bottom: 5px;
+
+          .light-theme & {
+            color: $text-light-secondary;
+          }
+        }
+
+        input {
+          @include taxi-input;
+        }
+      }
+    }
+
+    .place-bid-btn {
+      @include taxi-button;
+      @extend .taxi-button--primary;
+      width: 100%;
+      font-size: 18px;
+    }
+  }
+
+  .bids-section {
+    .bids-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+
+      h4 {
+        margin: 0;
+        font-size: 18px;
+        color: $text-dark-primary;
+
+        .light-theme & {
+          color: $text-light-primary;
+        }
+      }
+
+      .toggle-history {
+        padding: 8px 12px;
+        background: transparent;
+        border: 1px solid $border-dark;
+        border-radius: $radius-button;
+        color: $color-primary;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s;
+
+        &:hover {
+          background: rgba($color-primary, 0.1);
+          border-color: $color-primary;
+        }
+
+        .light-theme & {
+          border-color: $border-light;
+        }
+      }
+    }
+
+    .bids-list {
+      max-height: 200px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+
+      &--expanded {
+        max-height: 600px;
+        overflow-y: auto;
+
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: $bg-dark-input;
+          border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: $color-primary;
+          border-radius: 3px;
+        }
+      }
+
+      .no-bids {
+        text-align: center;
+        padding: 40px;
+        color: $text-dark-tertiary;
+        font-style: italic;
+
+        .light-theme & {
+          color: $text-light-tertiary;
+        }
+      }
+
+      .bid-item {
+        @include driver-card;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+
+        &--leading {
+          background: rgba($color-success, 0.1);
+          border-color: $color-success;
+
+          .bid-rank {
+            background: $color-success;
+            color: white;
+          }
+        }
+
+        &--mine {
+          background: rgba($color-primary, 0.1);
+          border-color: $color-primary;
+        }
+
+        .bid-rank {
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: $bg-dark-input;
+          color: $text-dark-primary;
+          border-radius: 50%;
+          font-size: 14px;
+          font-weight: bold;
+
+          .light-theme & {
+            background: $bg-light-input;
+            color: $text-light-primary;
+          }
+        }
+
+        .bid-details {
+          flex: 1;
+
+          .bid-driver {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+
+            .driver-name {
+              font-weight: 600;
+              color: $text-dark-primary;
+
+              .light-theme & {
+                color: $text-light-primary;
+              }
+            }
+
+            .driver-rating {
+              font-size: 13px;
+              color: $color-warning;
+            }
+          }
+
+          .bid-info {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: $text-dark-secondary;
+
+            .light-theme & {
+              color: $text-light-secondary;
+            }
+          }
+        }
+
+        .bid-price {
+          text-align: right;
+
+          .price {
+            display: block;
+            font-size: 20px;
+            font-weight: bold;
+            color: $color-primary;
+            margin-bottom: 5px;
+          }
+
+          .discount {
+            display: inline-block;
+            padding: 2px 6px;
+            background: $color-success;
+            color: white;
+            border-radius: $radius-small;
+            font-size: 11px;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+  }
+
+  .auction-result {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba($color-success, 0.1) 0%, rgba($color-success, 0.05) 100%);
+    border: 2px solid $color-success;
+    border-radius: $radius-card;
+    text-align: center;
+
+    h4 {
+      margin: 0 0 15px 0;
+      font-size: 22px;
+      color: $color-success;
+    }
+
+    .winner-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+
+      .winner-badge {
+        font-size: 48px;
+      }
+
+      .winner-details {
+        text-align: left;
+
+        .winner-name {
+          font-size: 18px;
+          font-weight: bold;
+          color: $text-dark-primary;
+          margin-bottom: 5px;
+
+          .light-theme & {
+            color: $text-light-primary;
+          }
+        }
+
+        .winner-price {
+          font-size: 16px;
+          color: $text-dark-secondary;
+          margin-bottom: 5px;
+
+          .light-theme & {
+            color: $text-light-secondary;
+          }
+        }
+
+        .winner-savings {
+          font-size: 14px;
+          color: $color-success;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba($color-error, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba($color-error, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba($color-error, 0);
+  }
+}

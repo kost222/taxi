@@ -147,6 +147,8 @@ export interface IDriver {
   c_latitude?: number,
   /** Долгота водителя */
   c_longitude?: number,
+  /** Предложенная цена водителя */
+  c_price?: number,
   /** Дата получения координат */
   l_datetime?: Moment,
   /** идентификатор способа оплаты */
@@ -205,6 +207,7 @@ export interface IOptions {
   cost?: number
   is_loading_needs?: boolean
   customer_price?: number
+  pickup_fee?: number
   moveType?: EMoveTypes
   steps?: string
   elevator?: IElevatorState

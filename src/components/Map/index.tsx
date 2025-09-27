@@ -21,9 +21,9 @@ import { EMapModalTypes } from '../../state/modals/constants'
 import { clientOrderSelectors } from '../../state/clientOrder'
 import { orderSelectors } from '../../state/order'
 import './styles.scss'
-
+import './mapFixes.scss'
+import CarMarkers from './CarMarkers'
 const defaultZoom = 15
-
 const mapStateToProps = (state: IRootState) => ({
   type: modalsSelectors.mapModalType(state),
   defaultCenter: modalsSelectors.mapModalDefaultCenter(state),
@@ -34,9 +34,7 @@ const mapStateToProps = (state: IRootState) => ({
   takePassengerFrom: modalsSelectors.takePassengerModalFrom(state),
   takePassengerTo: modalsSelectors.takePassengerModalTo(state),
 })
-
 const connector = connect(mapStateToProps)
-
 interface IProps extends ConnectedProps<typeof connector> {
   isOpen?: boolean;
   disableButtons?: boolean;
@@ -45,7 +43,6 @@ interface IProps extends ConnectedProps<typeof connector> {
   containerClassName?: string
   setCenter?: (coordinates: [lat: number, lng: number]) => void
 }
-
 function Map({
   isOpen = true,
   defaultCenter,
@@ -64,6 +61,7 @@ function Map({
         className='map'
         // crs={SITE_CONSTANTS.MAP_MODE === MAP_MODE.YANDEX ? L.CRS.EPSG3395 : L.CRS.EPSG3857}
         attributionControl={false}
+        zoomControl={window.innerWidth > 768}
       >
         <MapContent
           {...{ isOpen, defaultCenter, isModal, containerClassName }}
@@ -73,7 +71,6 @@ function Map({
     </div>
   )
 }
-
 function MapContent({
   isOpen = true,
   type,
@@ -90,9 +87,7 @@ function MapContent({
   containerClassName,
   setCenter = () => {},
 }: IProps) {
-
   const map = useMap()
-
   const [staticMarkers, setStaticMarkers] = useState<IStaticMarker[]>([])
   const [userCoordinates, setUserCoordinates] =
     useState<IAddressPoint | null>(null)
@@ -100,7 +95,6 @@ function MapContent({
     useState<number | null>(null)
   const [routeInfo, setRouteInfo] = useState<IRouteInfo | null>(null)
   const [showRouteInfo, setShowRouteInfo] = useState(false)
-
   let from: IAddressPoint | null = null,
     to: IAddressPoint | null = null
   switch (type) {
@@ -117,10 +111,8 @@ function MapContent({
       to = takePassengerTo || null
       break
     default:
-      console.error('Wrong map type:', type)
       break
   }
-
   useEffect(() => {
     if (isOpen) {
       API.getWashTrips()
@@ -148,10 +140,8 @@ function MapContent({
         })
     }
   }, [isOpen])
-
   useEffect(() => {
     if (!map) return
-
     map.once('locationfound', (e: L.LocationEvent) => {
       setUserCoordinates({
         latitude: e.latlng.lat,
@@ -161,13 +151,14 @@ function MapContent({
       if (!defaultCenter)
         map.setView(e.latlng)
     })
-    map.once('locationerror', (e: L.ErrorEvent) => console.error(e.message))
+    map.once('locationerror', (e: L.ErrorEvent) => {
+      console.error('Location error:', e)
+    })
     map.locate({
       timeout: Infinity,
       enableHighAccuracy: true,
     })
   }, [map])
-
   useInterval(() => {
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
@@ -177,19 +168,16 @@ function MapContent({
         })
         setUserCoordinatesAccuracy(coords.accuracy)
       },
-      error => console.error(error),
+      error => console.error('Geolocation error:', error),
       { enableHighAccuracy: true },
     )
   }, 20000)
-
   useEffect(() => {
     defaultCenter && map?.panTo(defaultCenter)
   }, [defaultCenter])
-
   useEffect(() => {
     map?.invalidateSize()
   }, [isOpen])
-
   useEffect(() => {
     function moveend() {
       const { lat, lng } = map.getCenter()
@@ -200,14 +188,11 @@ function MapContent({
       map.off('moveend', moveend)
     }
   }, [map, setCenter])
-
   useEffect(() => {
     setShowRouteInfo(false)
     setRouteInfo(null)
-
     if (!from?.latitude || !from?.longitude || !to?.latitude || !to?.longitude)
       return
-
     API.makeRoutePoints(from, to)
       .then((info) => {
         setRouteInfo(info)
@@ -217,15 +202,12 @@ function MapContent({
         }, 5000)
       })
       .catch((error) => {
-        console.error(error)
       })
   }, [from, to])
-
   const duration = [
     !!routeInfo?.time.hours && `${routeInfo?.time.hours} h`,
     !!routeInfo?.time.minutes && `${routeInfo?.time.minutes} min`,
   ].filter(part => part).join(' ')
-
   return (
     <>
       {
@@ -233,7 +215,6 @@ function MapContent({
           <div
             className="map-container__route"
           >
-
             <b>{t(TRANSLATION.DISTANCE)}</b> {routeInfo?.distance}km<br />
             <b>{t(TRANSLATION.EXPECTED_DURATION)}</b>&nbsp;
             {duration}
@@ -263,6 +244,16 @@ function MapContent({
           center={[userCoordinates.latitude, userCoordinates.longitude]}
         />
       }
+      {/* Show nearby cars on the map (Task 22) */}
+      <CarMarkers
+        userLocation={
+          userCoordinates?.latitude && userCoordinates?.longitude
+            ? { lat: userCoordinates.latitude, lng: userCoordinates.longitude }
+            : undefined
+        }
+        showOnlyAvailable={false}
+        maxDistance={10000} // Show cars within 10km
+      />
       {staticMarkers.map(marker => (
         <Marker
           position={[marker.latitude, marker.longitude]}
@@ -361,5 +352,4 @@ function MapContent({
     </>
   )
 }
-
 export default connector(Map)

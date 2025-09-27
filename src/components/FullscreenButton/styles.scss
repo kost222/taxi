@@ -1,0 +1,171 @@
+@import '../../styles/variables';
+
+.fullscreen-button {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+
+  // Позиционирование
+  &--bottom-right {
+    bottom: 24px;
+    right: 24px;
+  }
+
+  &--bottom-left {
+    bottom: 24px;
+    left: 24px;
+  }
+
+  &--top-right {
+    top: 24px;
+    right: 24px;
+  }
+
+  &--top-left {
+    top: 24px;
+    left: 24px;
+  }
+
+  // Состояния
+  &:hover {
+    background: $primary-color;
+    color: white;
+    border-color: $primary-color;
+    box-shadow: 0 6px 20px rgba($primary-color, 0.3);
+    transform: translateY(-2px);
+
+    svg {
+      transform: scale(1.1);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &--active {
+    background: $primary-color;
+    color: white;
+    border-color: $primary-color;
+
+    &:hover {
+      background: darken($primary-color, 10%);
+      border-color: darken($primary-color, 10%);
+    }
+  }
+
+  // Иконка
+  svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s ease;
+  }
+
+  // Текст кнопки
+  &__text {
+    @media (max-width: 480px) {
+      display: none; // Скрываем текст на мобильных устройствах
+    }
+  }
+
+  // Мобильная адаптация
+  @media (max-width: 768px) {
+    padding: 10px;
+    bottom: 16px;
+    right: 16px;
+
+    &--bottom-right {
+      bottom: 16px;
+      right: 16px;
+    }
+
+    &--bottom-left {
+      bottom: 16px;
+      left: 16px;
+    }
+
+    &--top-right {
+      top: 16px;
+      right: 16px;
+    }
+
+    &--top-left {
+      top: 16px;
+      left: 16px;
+    }
+  }
+
+  // Анимация появления
+  animation: fadeInScale 0.3s ease;
+
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  // Пульсирующая анимация для привлечения внимания
+  &:not(&--active) {
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    50% {
+      box-shadow: 0 4px 20px rgba($primary-color, 0.4);
+    }
+  }
+
+  // Темная тема (опционально)
+  &--dark {
+    background: #2c2c2c;
+    color: white;
+    border-color: #444;
+
+    &:hover {
+      background: #3c3c3c;
+      border-color: #555;
+    }
+  }
+
+  // Минималистичный стиль (опционально)
+  &--minimal {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 8px;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+
+    .fullscreen-button__text {
+      display: none;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: scale(1.1);
+    }
+  }
+}

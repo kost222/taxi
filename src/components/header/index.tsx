@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 import './styles.scss'
@@ -58,6 +58,15 @@ const Header: React.FC<IProps> = ({
   const [seconds, setSeconds] = useState(0)
   const [menuOpened, setMenuOpened] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
 
   const location = useLocation()
   const navigate = useNavigate()
@@ -197,7 +206,7 @@ const Header: React.FC<IProps> = ({
         </div>
         <div
           className="avatar"
-          onClick={e => setLoginModal(true)}
+          onClick={e => user ? setProfileModal({ isOpen: true }) : setLoginModal(true)}
           style={{
             backgroundSize: avatarSize,
             backgroundImage: `url(${avatar})`,

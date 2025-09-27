@@ -12,19 +12,17 @@ import * as API from '../../API'
 import Input, { EInputTypes } from '../Input'
 import { Resizable } from 're-resizable'
 import { modalsActionCreators, modalsSelectors } from '../../state/modals'
-
 enum EMessageType {
   MainUserMessage,
   AnotherUserMessage,
   Action
 }
-
 interface IMessage {
   text: string,
   from?: string,
-  type?: EMessageType
+  type?: EMessageType,
+  timestamp?: Date
 }
-
 interface ISocketData {
   action: string,
   event?: string,
@@ -38,11 +36,9 @@ interface ISocketData {
   }[],
   from?: string
 }
-
 interface IFormValues {
   message: string,
 }
-
 const getMessageClass = (type?: EMessageType) => {
   switch(type) {
     case EMessageType.MainUserMessage: return 'main-user-message'
@@ -51,24 +47,18 @@ const getMessageClass = (type?: EMessageType) => {
     default: return 'main-user-message'
   }
 }
-
 const mapStateToProps = (state: IRootState) => ({
   user: userSelectors.user(state),
   activeChat: modalsSelectors.activeChat(state),
 })
-
 const mapDispatchToProps = {
   setActiveChat: modalsActionCreators.setActiveChat,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 const host = 'chat.itest24.com'
 const port = 7007
-
 interface IProps extends ConnectedProps<typeof connector> {
 }
-
 const Chat: React.FC<IProps> = ({
   user,
   activeChat,
@@ -77,9 +67,7 @@ const Chat: React.FC<IProps> = ({
   const [socket, setSocket] = useState<WebSocket | null>(null)
   const [messages, setMessages] = useState<IMessage[]>([])
   const [anotherUser, setAnotherUser] = useState<IUser | null>(null)
-
   const messagesRef = useRef<HTMLDivElement>(null)
-
   const {
     register,
     getValues,
@@ -89,22 +77,17 @@ const Chat: React.FC<IProps> = ({
     criteriaMode: 'all',
     mode: 'onSubmit',
   })
-
   let from: string, to: string, anotherUserID: string, order: string
-
   useEffect(() => {
     API.getUser(anotherUserID)
       .then(setAnotherUser)
-      .catch(error => console.error(error))
-
+      .catch(error => console.error('Error fetching user:', error))
     let _socket = socket
     try {
       _socket = new WebSocket(`wss://${host}:${port}`)
       setSocket(_socket)
     } catch (error) {
-      console.log(error)
     }
-
     if (_socket) {
       _socket.onopen = () => {
         _socket?.send(JSON.stringify({
@@ -114,17 +97,15 @@ const Chat: React.FC<IProps> = ({
         }))
       }
       _socket.onclose = () => {
-
       }
-
       _socket.onmessage = e => {
         const { action, event, arg, msg, from: dataFrom, history }: ISocketData = JSON.parse(e.data)
-
         switch (action) {
           case 'notify': {
             const message = {
               type: EMessageType.Action,
               from: arg || from,
+              timestamp: new Date()
             } as IMessage
             switch (event) {
               case 'joined':
@@ -139,25 +120,19 @@ const Chat: React.FC<IProps> = ({
               case 'you-left':
                 message.text = 'left the conversation'
                 break
-              default: console.error('Wrong chat event:', event)
+              default: 
             }
-
             setMessages(prev => [...prev, message])
-
-            // TODO
-            // '<i><font color="#044">' + text + '</font></i>'
+            message.text = `<i>${message.text}</i>`
             break
           }
           case 'send': {
-            // TODO
-            // const color =  ? '#f00' : '#00f'
-
             const message = {
               type: from === dataFrom ? EMessageType.MainUserMessage : EMessageType.AnotherUserMessage,
               from: dataFrom,
               text: msg as string,
+              timestamp: new Date()
             }
-
             setMessages(prev => [...prev, message])
             break
           }
@@ -167,37 +142,31 @@ const Chat: React.FC<IProps> = ({
                 type: from === item.from ? EMessageType.MainUserMessage : EMessageType.AnotherUserMessage,
                 from: item.from,
                 text: item.msg,
+                timestamp: new Date()
               })),
             )
             break
           }
-          default: console.error('Wrong chat event:', event)
+          default: 
         }
       }
-
       _socket.onerror = (error) => {
-        console.error('Socket error:', error)
       }
     }
   }, [])
-
   if (!activeChat) return null;
   [from, to] = activeChat.split(';');
   [anotherUserID, order] = to.split('_')
-
   const handleSubmit = () => {
-    if (!socket) return console.error('Error: Socket is not ready yet for send')
-
+    if (!socket) return 
     socket.send(JSON.stringify({
       from,
       to,
       msg: getValues().message,
       action: 'send',
     }))
-
     reset()
   }
-
   return (
     <Resizable
       defaultSize={{ height: 400, width: 300 }}
@@ -217,7 +186,6 @@ const Chat: React.FC<IProps> = ({
           №{order} {anotherUser?.u_name}
           <button className="chat__close-button" onClick={(e) => {e.stopPropagation(); setActiveChat(null)}}>✖</button>
         </div>
-
         <div className="chat__messages" ref={messagesRef}>
           {
             messages.map((item) =>
@@ -228,7 +196,6 @@ const Chat: React.FC<IProps> = ({
             )
           }
         </div>
-
         <div className="chat__footer">
           <Input
             inputProps={{
@@ -249,5 +216,4 @@ const Chat: React.FC<IProps> = ({
     </Resizable>
   )
 }
-
 export default connector(Chat)

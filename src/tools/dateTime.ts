@@ -1,13 +1,10 @@
 import { ECompareVariants } from '../components/CompareVariants'
-
 // [>=<](date input format)T[>=<](time input format)
 // (date input format)-(date input format)T(time input format)-(time input format)
-
 export enum ETimeTypes {
   Interval,
   Single
 }
-
 export interface IDateTime {
   dateType: ETimeTypes
   date?: string
@@ -20,7 +17,6 @@ export interface IDateTime {
   timeComparator?: ECompareVariants
   timeDisabled?: boolean
 }
-
 const comparatorMap = {
   [ECompareVariants.Equal]: '=',
   [ECompareVariants.Less]: '<',
@@ -29,11 +25,9 @@ const comparatorMap = {
   '<': ECompareVariants.Less,
   '>': ECompareVariants.Greater,
 }
-
 export const parseDateTime = (dateTime: string) => {
   const result = {} as Partial<IDateTime>
   const [date, time] = dateTime.split('T')
-
   if (date) {
     const [dateFrom, dateTill] = date.split('-')
     if (dateTill) {
@@ -45,7 +39,6 @@ export const parseDateTime = (dateTime: string) => {
       result.date = dateFrom
     }
   }
-
   if (time) {
     const [timeFrom, timeTill] = time.split('-')
     if (timeTill) {
@@ -57,32 +50,25 @@ export const parseDateTime = (dateTime: string) => {
       result.time = timeFrom
     }
   }
-
   return result as IDateTime
 }
-
 export const stringifyDateTime = (dateTime: IDateTime) => {
   let result = ''
-
   if (!dateTime.dateDisabled) {
     if (dateTime.dateType === ETimeTypes.Interval && dateTime.date && dateTime.dateTill) {
       result += `${dateTime.date.replaceAll('-', '.')} - ${dateTime.dateTill.replaceAll('-', '.')}`
     } else if (dateTime.dateType === ETimeTypes.Single && dateTime.date && dateTime.dateComparator !== undefined) {
       result += `${comparatorMap[dateTime.dateComparator]}${dateTime.date.replaceAll('-', '.')}`
     } else {
-      console.error('Date error at stringifyDateTime', dateTime)
     }
   }
-
   if (!dateTime.timeDisabled) {
     if (dateTime.timeType === ETimeTypes.Interval && dateTime.time && dateTime.timeTill) {
       result += ` ${dateTime.time} - ${dateTime.timeTill}`
     } else if (dateTime.timeType === ETimeTypes.Single && dateTime.time && dateTime.timeComparator !== undefined) {
       result += ` ${comparatorMap[dateTime.timeComparator]}${dateTime.time}`
     } else {
-      console.error('Time error at stringifyDateTime', dateTime)
     }
   }
-
   return result
 }

@@ -150,7 +150,7 @@ $red: #FF2400;
                 opacity: 1;
                 transform: scale(1);
                 max-height: 500px;
-                z-index: 1;
+                z-index: 9999;
             }
 
             &--expanded {

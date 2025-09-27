@@ -1,0 +1,102 @@
+// Задание 7: Исправить дрейф маркера при зуме
+.leaflet-marker-icon {
+  transition: none !important;
+
+  &.leaflet-zoom-animated {
+    will-change: transform;
+  }
+}
+
+// Предотвращение дрейфа маркера
+.leaflet-container {
+  .leaflet-marker-pane {
+    .leaflet-marker-icon {
+      margin-left: -12px !important;
+      margin-top: -41px !important;
+    }
+  }
+}
+
+// Задание 8: Уменьшить размер хинта
+.leaflet-tooltip {
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  max-width: 200px !important;
+
+  &.order-hint {
+    // Скрыть "Откуда" если есть координаты
+    .hint-from {
+      display: none;
+    }
+
+    // Уменьшить "Куда" до одной строки
+    .hint-to {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 180px;
+    }
+  }
+}
+
+// Задание 9: Убрать лого Leaflet и атрибуцию
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+.leaflet-control-container {
+  .leaflet-bottom {
+    display: none !important;
+  }
+}
+
+// Задание 9б: Убрать кнопки зума в мобильной версии
+@media (max-width: 768px) {
+  .leaflet-control-zoom {
+    display: none !important;
+  }
+
+  // Оставить только кнопку fullscreen
+  .leaflet-control-fullscreen {
+    display: block !important;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1000;
+  }
+}
+
+// Задание 24: Кнопка полноэкранного режима
+.leaflet-control-fullscreen {
+  position: absolute !important;
+  bottom: 10px !important;
+  right: 10px !important;
+  background: white;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 4px;
+
+  a {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 18px;
+
+    &:hover {
+      background: #f4f4f4;
+    }
+  }
+}
+
+// Исправление анимации при зуме
+.leaflet-zoom-anim {
+  .leaflet-zoom-animated {
+    transition-timing-function: cubic-bezier(0, 0, 0.25, 1);
+    transition-duration: 0.25s;
+  }
+
+  .leaflet-marker-icon {
+    transition: none !important;
+  }
+}

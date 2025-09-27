@@ -46,6 +46,14 @@ export const defaultProfileModal = {
 export const defaultDeleteFilesModal = {
   isOpen: false,
 }
+export const defaultReviewModal = {
+  isOpen: false,
+  orderId: null,
+}
+export const defaultBoardingCodeModal = {
+  isOpen: false,
+  orderId: null,
+}
 
 export const record = Record<IModalsState>({
   isCancelModalOpen: false,
@@ -71,6 +79,8 @@ export const record = Record<IModalsState>({
   ratingModal: { ...defaultRatingModal },
   activeChat: null,
   deleteFilesModal: { ...defaultDeleteFilesModal },
+  reviewModal: { ...defaultReviewModal },
+  boardingCodeModal: { ...defaultBoardingCodeModal },
 })
 
 export default function reducer(state = new record(), action: TAction) {
@@ -173,8 +183,14 @@ export default function reducer(state = new record(), action: TAction) {
         .set('ratingModal', { ...defaultRatingModal })
         .set('profileModal', { ...defaultProfileModal })
         .set('deleteFilesModal', { ...defaultDeleteFilesModal })
+        .set('reviewModal', { ...defaultReviewModal })
+        .set('boardingCodeModal', { ...defaultBoardingCodeModal })
     case ActionTypes.SET_SHOW_SWITCHERS_MENU:
       return state.set('isShowSwitchersMenu', payload)
+    case ActionTypes.SET_REVIEW_MODAL:
+      return state.set('reviewModal', { ...state.reviewModal, ...payload })
+    case ActionTypes.SET_BOARDING_CODE_MODAL:
+      return state.set('boardingCodeModal', { ...state.boardingCodeModal, ...payload })
     default:
       return state
   }

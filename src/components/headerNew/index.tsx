@@ -240,7 +240,7 @@ const Header: React.FC<IProps> = ({
         <span className='header-user-lng'>{language.iso.toUpperCase()}</span>
         <div
           className="avatar"
-          onClick={e => setLoginModal(true)}
+          onClick={e => user ? setProfileModal({ isOpen: true }) : setLoginModal(true)}
           style={{
             backgroundSize: avatarSize,
             backgroundImage: `url(${avatar})`,

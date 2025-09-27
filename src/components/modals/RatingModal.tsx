@@ -17,20 +17,18 @@ import { CURRENCY } from '../../siteConstants'
 import {getPayment} from "../../tools/utils";
 import {IOrder} from "../../types/types";
 import moment from "moment";
-
+import { SafeFormulaEvaluator } from '../../utils/formulaEvaluator';
+import { logger } from '../../utils/logger';
 const mapStateToProps = (state: IRootState) => ({
   isOpen: modalsSelectors.isRatingModalOpen(state),
   orderID: modalsSelectors.ratingModalOrderID(state),
   selectedOrder: clientOrderSelectors.selectedOrder(state),
   detailedOrder: orderSelectors.order(state),
 })
-
 const mapDispatchToProps = {
   setRatingModal: modalsActionCreators.setRatingModal,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IProps extends ConnectedProps<typeof connector> {
 }
 export const calculateFinalPriceFormula = (order: IOrder | null) => {
@@ -42,7 +40,6 @@ export const calculateFinalPriceFormula = (order: IOrder | null) => {
   }
   let formula = order.b_options?.pricingModel?.formula;
   let options = order.b_options?.pricingModel?.options || {};
-
   // pick up submitPrice from b_options
   options = {
     ...options,
@@ -57,7 +54,6 @@ export const calculateFinalPriceFormula = (order: IOrder | null) => {
     const placeholder = `${key}`;
     formula = (formula || 'error_0x01').replace(new RegExp(placeholder, 'g'), value === '?' ? '?' :Math.trunc(value)?.toString() || '0');
   });
-
   const timeRatioMatch = (formula || 'error_0x02').match(/\(([^)]+)\)\*(\d+(?:\.\d+)?)/);
   if (timeRatioMatch) {
     const coefficient = parseFloat(timeRatioMatch[2]);
@@ -66,7 +62,6 @@ export const calculateFinalPriceFormula = (order: IOrder | null) => {
       formula = (formula || 'error_0x03').replace(/\(([^)]+)\)\*\d+(?:\.\d+)?/, '$1');
     }
   }
-
   return formula
 }
 export const calculateFinalPrice = (order: IOrder | null) => {
@@ -81,7 +76,6 @@ export const calculateFinalPrice = (order: IOrder | null) => {
   }
   let formula  = order.b_options?.pricingModel?.formula;
   let options = order.b_options?.pricingModel?.options || {};
-
   // pick up submitPrice from b_options
   options = {
     ...options,
@@ -92,18 +86,16 @@ export const calculateFinalPrice = (order: IOrder | null) => {
   if (!formula || formula === 'err') {
     return 'err';
   }
-  Object.entries(options).forEach(([key, value]) => {
-    const placeholder = `${key}`;
-    formula = formula.replace(new RegExp(placeholder, 'g'), value?.toString() || '0');
-  });
-  console.log('FINAL FORMULA', formula, '=', eval(formula), ' ~ ', Math.trunc(eval(formula)))
+  // Use safe formula evaluator instead of dangerous eval()
   try {
-    return Math.trunc(eval(formula)).toString()
+    const result = SafeFormulaEvaluator.evaluateFormula(formula, options);
+    logger.debug('Formula evaluation completed', { formula, options, result });
+    return result.toString();
   } catch (e) {
-    return 'err, status: ' + e;
+    logger.error('Formula evaluation failed', { formula, options, error: e });
+    return 'err';
   }
 }
-
 const RatingModal: React.FC<IProps> = ({
   isOpen,
   orderID,
@@ -111,15 +103,11 @@ const RatingModal: React.FC<IProps> = ({
   detailedOrder,
   setRatingModal,
 }) => {
-  console.log('Rerendering rating modal')
   const [stars, setStars] = useState(0)
   const [tips, setTips] = useState('')
   const [comment, setComment] = useState('')
-
   const _orderID = orderID || detailedOrder?.b_id || selectedOrder
-
   const navigate = useNavigate()
-
   // Reset stars, tips and comment when modal opens for a new order
   useEffect(() => {
     if (isOpen) {
@@ -128,32 +116,29 @@ const RatingModal: React.FC<IProps> = ({
       setComment('')
     }
   }, [isOpen, _orderID])
-
-  const onRating = () => {
+  const onRating = async () => {
     if (!_orderID) return
-
-    API.setOrderRating(_orderID, stars)
-
-    if (detailedOrder) {
-      navigate('/driver-order')
+    try {
+      await API.setOrderRating(_orderID, stars, tips ? parseFloat(tips) : 0, comment)
+      if (detailedOrder) {
+        navigate('/driver-order')
+      }
+      setRatingModal({ isOpen: false })
+      setStars(0)
+      setTips('')
+      setComment('')
+    } catch (error) {
     }
-
-    setRatingModal({ isOpen: false })
   }
-
   let finalPriceFormula: string | undefined = 'err'
   let finalPrice: string | number = 0
-  console.log('detailedOrder', detailedOrder)
   if (detailedOrder?.b_options?.pricingModel) {
     const start_moment = moment(detailedOrder.b_start_datetime)
     const end_moment = moment(detailedOrder.b_completed)
-    console.log('TOTAL DURATION:',end_moment.diff(start_moment, 'minutes'))
-    
     const updatedOptions = {
       ...(detailedOrder.b_options.pricingModel.options || {}),
       duration: end_moment.diff(start_moment, 'minutes')
     }
-    
     const orderWithUpdatedOptions = {
       ...detailedOrder,
       b_options: {
@@ -164,11 +149,9 @@ const RatingModal: React.FC<IProps> = ({
         }
       }
     }
-    
     finalPriceFormula = calculateFinalPriceFormula(orderWithUpdatedOptions)
     finalPrice = calculateFinalPrice(orderWithUpdatedOptions)
   }
-
   return (
     <Overlay
       isOpen={isOpen}
@@ -192,7 +175,6 @@ const RatingModal: React.FC<IProps> = ({
             <legend>{t(TRANSLATION.RATING_HEADER)}!</legend>
             <h3>{t(TRANSLATION.YOUR_RATING)}</h3>
             <div className="rating">
-              {/* TODO make rating wrapper component */}
               <Rating
                 onChange={setStars}
                 initialRating={stars}
@@ -201,7 +183,6 @@ const RatingModal: React.FC<IProps> = ({
                 fullSymbol={<img src={images.starFull} className="icon" alt={t(TRANSLATION.FULL_STAR)}/>}
               />
               <p>({t(TRANSLATION.ONLY_ONE_TIME)})</p>
-              {/* TODO connect to API */}
               <Input
                 inputProps={{
                   placeholder: t(TRANSLATION.ADD_TAXES),
@@ -234,5 +215,4 @@ const RatingModal: React.FC<IProps> = ({
     </Overlay>
   )
 }
-
 export default connector(RatingModal)

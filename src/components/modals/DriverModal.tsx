@@ -11,23 +11,18 @@ import { EBookingDriverState, EColorTypes, ICar, IUser } from '../../types/types
 import './styles.scss'
 import { modalsActionCreators, modalsSelectors } from '../../state/modals'
 import Overlay from './Overlay'
-
 const mapStateToProps = (state: IRootState) => ({
   selectedOrder: clientOrderSelectors.selectedOrder(state),
   activeOrders: ordersSelectors.activeOrders(state),
   isOpen: modalsSelectors.isDriverModalOpen(state),
 })
-
 const mapDispatchToProps = {
   setDriverModal: modalsActionCreators.setDriverModal,
   setCancelModal: modalsActionCreators.setCancelModal,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IProps extends ConnectedProps<typeof connector> {
 }
-
 const DriverModal: React.FC<IProps> = ({
   isOpen,
   selectedOrder,
@@ -41,21 +36,18 @@ const DriverModal: React.FC<IProps> = ({
   // const [isFree, setIsFree] = useState(false)
   const [car, setCar] = useState<ICar | null>(null)
   const [driverUser, setDriverUser] = useState<IUser | null>(null)
-
   const order = activeOrders?.find(item => item.b_id === selectedOrder)
   const driver = order?.drivers?.find(item => item.c_state > EBookingDriverState.Canceled)
-
   useEffect(() => {
     if (isOpen && selectedOrder && driver?.c_id) {
       API.getCar(driver.c_id)
         .then(setCar)
-        .catch(error => console.error(error))
+        .catch(error => console.error('Error fetching car:', error))
       API.getUser(driver.u_id)
         .then(setDriverUser)
-        .catch(error => console.error(error))
+        .catch(error => console.error('Error fetching driver user:', error))
     }
   }, [isOpen])
-
   // useEffect(() => {
   //   let interval = null
   //   let upInterval = null
@@ -78,9 +70,7 @@ const DriverModal: React.FC<IProps> = ({
   //     clearInterval(upInterval)
   //   }
   // }, [seconds, countUp, clicked])
-
   const registrationPlate = car?.registration_plate.split(' ')
-
   return (
     <Overlay
       isOpen={isOpen}
@@ -103,7 +93,7 @@ const DriverModal: React.FC<IProps> = ({
               </div>
               <div>
                 <img src={images.driverAvatar} alt={t(TRANSLATION.DRIVER)}/>
-                {/* TODO replace by rating component with real rating */}
+                {}
                 <img src={images.stars} alt={t(TRANSLATION.STARS)}/>
               </div>
               <div className="colored">
@@ -120,10 +110,9 @@ const DriverModal: React.FC<IProps> = ({
               </div>
             </div>
             <div className="driver-info_div">
-              {/* TODO rename family */}
+              {}
               <h4>{driverUser?.u_name} {driverUser?.u_family} {driverUser?.u_middle}</h4>
-
-              {/* TODO */}
+              {}
               {/* {
               !clicked ?
                 <Button
@@ -170,5 +159,4 @@ const DriverModal: React.FC<IProps> = ({
     </Overlay>
   )
 }
-
 export default connector(DriverModal)

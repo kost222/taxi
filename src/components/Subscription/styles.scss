@@ -1,0 +1,235 @@
+@import '../../styles/design-system';
+
+.subscription {
+  padding: $spacing-xl;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  &__header {
+    text-align: center;
+    margin-bottom: $spacing-2xl;
+
+    h2 {
+      font-size: $font-size-3xl;
+      color: $text-primary;
+      margin-bottom: $spacing-md;
+    }
+  }
+
+  &__subtitle {
+    color: $text-secondary;
+    font-size: $font-size-lg;
+  }
+
+  &__current {
+    margin-bottom: $spacing-xl;
+
+    .current-plan {
+      @include card;
+      background: $success-green-bg;
+      border: 1px solid $success-green-light;
+
+      h3 {
+        color: $success-green-dark;
+        margin-bottom: $spacing-sm;
+      }
+
+      p {
+        color: $text-secondary;
+        margin-bottom: $spacing-md;
+      }
+    }
+  }
+
+  &__plans {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-lg;
+    margin-bottom: $spacing-2xl;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .plan-card {
+    @include card;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: $transition-base;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-xl;
+    }
+
+    &--featured {
+      border: 2px solid $primary-red;
+      transform: scale(1.05);
+
+      @include mobile {
+        transform: scale(1);
+      }
+    }
+
+    .plan-badge {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: $primary-red;
+      color: $text-inverse;
+      padding: $spacing-xs $spacing-md;
+      border-radius: $radius-full;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-semibold;
+      text-transform: uppercase;
+    }
+
+    .plan-header {
+      padding-bottom: $spacing-md;
+      border-bottom: 1px solid $border-light;
+      margin-bottom: $spacing-md;
+
+      .plan-name {
+        font-size: $font-size-xl;
+        color: $text-primary;
+        margin-bottom: $spacing-xs;
+      }
+
+      .plan-description {
+        color: $text-secondary;
+        font-size: $font-size-sm;
+      }
+    }
+
+    .plan-price {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      margin-bottom: $spacing-lg;
+
+      .price-amount {
+        font-size: $font-size-3xl;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+      }
+
+      .price-period {
+        margin-left: $spacing-xs;
+        color: $text-secondary;
+        font-size: $font-size-base;
+      }
+    }
+
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin-bottom: $spacing-lg;
+      flex: 1;
+
+      li {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: $spacing-sm;
+        color: $text-secondary;
+        font-size: $font-size-sm;
+
+        .feature-icon {
+          width: 20px;
+          height: 20px;
+          color: $success-green;
+          margin-right: $spacing-sm;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+      }
+    }
+
+    .plan-action {
+      margin-top: auto;
+
+      .plan-button {
+        width: 100%;
+        padding: $spacing-md;
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+
+        &--current {
+          background: $gray-200;
+          color: $gray-500;
+          cursor: default;
+
+          &:hover {
+            transform: none;
+            box-shadow: none;
+          }
+        }
+      }
+    }
+  }
+
+  &__payment-form {
+    @include card;
+    max-width: 500px;
+    margin: 0 auto $spacing-xl;
+
+    h3 {
+      margin-bottom: $spacing-lg;
+      text-align: center;
+    }
+
+    .payment-form {
+      .form-group {
+        margin-bottom: $spacing-md;
+
+        label {
+          @include label;
+        }
+
+        input {
+          @include input-field;
+        }
+      }
+
+      .form-actions {
+        display: flex;
+        gap: $spacing-md;
+        margin-top: $spacing-lg;
+
+        button {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  &__footer {
+    text-align: center;
+    padding-top: $spacing-xl;
+    border-top: 1px solid $border-light;
+
+    .footer-text {
+      color: $text-secondary;
+      font-size: $font-size-sm;
+      margin-bottom: $spacing-md;
+    }
+
+    .payment-methods {
+      display: flex;
+      justify-content: center;
+      gap: $spacing-lg;
+      flex-wrap: wrap;
+
+      img {
+        height: 32px;
+        opacity: 0.7;
+        transition: $transition-base;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}

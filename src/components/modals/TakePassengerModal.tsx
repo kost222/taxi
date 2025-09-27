@@ -14,13 +14,11 @@ import Overlay from './Overlay'
 import { EStatuses, ISuggestion } from '../../types/types'
 import { userActionCreators } from '../../state/user'
 import _ from 'lodash'
-
 const mapStateToProps = (state: IRootState) => ({
   isOpen: modalsSelectors.isTakePassengerModalOpen(state),
   from: modalsSelectors.takePassengerModalFrom(state),
   to: modalsSelectors.takePassengerModalTo(state),
 })
-
 const mapDispatchToProps = {
   setMapModal: modalsActionCreators.setMapModal,
   setMessageModal: modalsActionCreators.setMessageModal,
@@ -30,12 +28,9 @@ const mapDispatchToProps = {
   setTakePassengerModalTo: modalsActionCreators.setTakePassengerModalTo,
   setUser: userActionCreators.setUser,
 }
-
 const connector = connect(mapStateToProps, mapDispatchToProps)
-
 interface IProps extends ConnectedProps<typeof connector> {
 }
-
 const debouncedGetFromPointSuggestion = _.debounce((callback, ...args) => {
   API.getPointSuggestions(
     ...args,
@@ -46,7 +41,6 @@ const debouncedGetToPointSuggestion = _.debounce((callback, ...args) => {
     ...args,
   ).then(callback)
 }, 500)
-
 const TakePassengerModal: React.FC<IProps> = ({
   isOpen,
   from,
@@ -64,10 +58,8 @@ const TakePassengerModal: React.FC<IProps> = ({
   const [isToAddressShort, setIsToAddressShort] = useState(true)
   const [fromSuggestions, setFromSuggestions] = useState<ISuggestion[]>([])
   const [toSuggestions, setToSuggestions] = useState<ISuggestion[]>([])
-
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
     API.setOutDrive(
       false,
       {
@@ -84,26 +76,22 @@ const TakePassengerModal: React.FC<IProps> = ({
       .then(API.getAuthorizedUser)
       .then(setUser)
       .catch(error => {
-        console.error(error)
         setMessageModal({ isOpen: true, message: t(TRANSLATION.ERROR), status: EStatuses.Fail })
       })
   }
-
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => updateTakePassengerModal({ from: { latitude: coords.latitude, longitude: coords.longitude } }),
-      error => console.error(error),
+      error => console.error('Geolocation error:', error),
       { enableHighAccuracy: true },
     )
   }, [])
-
   useEffect(() => {
     debouncedGetFromPointSuggestion(setFromSuggestions, from?.address, true)
   } , [from])
   useEffect(() => {
     debouncedGetToPointSuggestion(setToSuggestions, to?.address, true)
   } , [to])
-
   const fromButtons = [
     {
       src: isFromAddressShort ? images.minusIcon : images.plusIcon,
@@ -132,7 +120,6 @@ const TakePassengerModal: React.FC<IProps> = ({
       }),
     },
   ]
-
   return (
     <Overlay
       isOpen={isOpen}
@@ -216,5 +203,4 @@ const TakePassengerModal: React.FC<IProps> = ({
     </Overlay>
   )
 }
-
 export default connector(TakePassengerModal)

@@ -7,7 +7,6 @@ import { configActionCreators } from '../../state/config'
 import SITE_CONSTANTS, {getApiConstants} from '../../siteConstants'
 import { setCookie } from '../../utils/cookies'
 import { ILanguage } from '../../types/types'
-
 interface Language {
   native: string;
   ru: string;
@@ -17,41 +16,30 @@ interface Language {
   logo: string;
   tr_code: string;
 }
-
 interface Languages {
   [key: string]: Language;
 }
-
 const mapDispatchToProps = {
   setLanguage: configActionCreators.setLanguage,
 }
-
 const connector = connect(null, mapDispatchToProps)
-
 interface IProps {
   setLanguage?: typeof configActionCreators.setLanguage
 }
-
 const VersionInfo: React.FC<IProps> = ({ setLanguage }) => {
   const _dt = new Date(version.buildTimestamp)
   const [clickCount, setClickCount] = useState(0)
   const [lastClickTime, setLastClickTime] = useState(0)
-
   const handleClick = () => {
-    console.log('Handling click')
     const currentTime = new Date().getTime()
     const timeDiff = currentTime - lastClickTime
-    
     if (timeDiff < 500) {
       setClickCount(prev => prev + 1)
     } else {
       setClickCount(1)
     }
-    
     setLastClickTime(currentTime)
-
     if (clickCount === 2) {
-      console.log(getApiConstants()?.langs)
       const langs = getApiConstants()?.langs
       const russianLang = langs ? Object.entries(langs).find(([id, lang]) => lang.tr_code === 'ru') : undefined
       if (russianLang && setLanguage) {
@@ -72,7 +60,6 @@ const VersionInfo: React.FC<IProps> = ({ setLanguage }) => {
       setClickCount(0)
     }
   }
-
   return <div className="version-info colored">
     <span 
       className="info-item _database" 
@@ -85,5 +72,4 @@ const VersionInfo: React.FC<IProps> = ({ setLanguage }) => {
     <span className="info-item _date">{_dt.toLocaleString()}</span>
   </div>
 }
-
 export default connector(VersionInfo)

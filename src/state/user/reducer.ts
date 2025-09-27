@@ -3,10 +3,8 @@ import { Record } from 'immutable'
 import { TAction } from '../../types'
 import { TRANSLATION } from '../../localization'
 import { EStatuses, EUserRoles } from '../../types/types'
-
 // Тестовый пользователь-водитель для демонстрации
 const testDriverUser = null
-
 export const record = Record<IUserState>({
   user: null,
   tokens: null,
@@ -17,10 +15,8 @@ export const record = Record<IUserState>({
   whatsappSignUpData: { u_phone: '' },
   car: undefined,
 })
-
 export default function reducer(state = new record(), action: TAction) {
   const { type, payload } = action
-
   switch (type) {
     case ActionTypes.LOGIN_START:
       return state
@@ -34,7 +30,6 @@ export default function reducer(state = new record(), action: TAction) {
         .set('user', payload.user)
         .set('tokens', payload.tokens)
     case ActionTypes.LOGIN_FAIL:
-      console.log('LOGIN_FAIL', payload)
       return state
         .set('status', EStatuses.Fail)
         .set('message', payload)
@@ -42,7 +37,6 @@ export default function reducer(state = new record(), action: TAction) {
       return state
         .set('status', EStatuses.Whatsapp)
         .set('message', 'Whatsapp message sent')
-
     case ActionTypes.GOOGLE_LOGIN_START:
       return state
         .set('status', EStatuses.Loading)
@@ -58,7 +52,6 @@ export default function reducer(state = new record(), action: TAction) {
       return state
         .set('status', EStatuses.Fail)
         .set('message', TRANSLATION.LOGIN_FAIL)
-
     case ActionTypes.LOGOUT_START:
       return state
         .set('status', EStatuses.Loading)
@@ -73,7 +66,6 @@ export default function reducer(state = new record(), action: TAction) {
       return state
         .set('status', EStatuses.Fail)
         .set('message', TRANSLATION.LOGOUT_FAIL)
-
     case ActionTypes.REGISTER_START:
       return state
         .set('status', EStatuses.Loading)
@@ -89,7 +81,6 @@ export default function reducer(state = new record(), action: TAction) {
       return state
         .set('status', EStatuses.Fail)
         .set('message', payload && payload.message || TRANSLATION.REGISTER_FAIL)
-
     case ActionTypes.REMIND_PASSWORD_START:
       return state
         .set('status', EStatuses.Loading)
@@ -104,7 +95,6 @@ export default function reducer(state = new record(), action: TAction) {
       return state
         .set('status', EStatuses.Fail)
         .set('message', TRANSLATION.REMIND_PASSWORD_FAIL)
-
     case ActionTypes.SET_TAB:
       return state
         .set('tab', payload)
@@ -117,8 +107,6 @@ export default function reducer(state = new record(), action: TAction) {
       return state
         .set('user', payload)
         .set('tab', payload ? LOGIN_TABS_IDS[0] : LOGIN_TABS_IDS[1])
-
-
     case ActionTypes.WHATSAPP_SIGNUP_START:
       return state
         .set('status', EStatuses.Loading)
@@ -135,13 +123,10 @@ export default function reducer(state = new record(), action: TAction) {
         .set('status', EStatuses.Fail)
         .set('whatsappSignUpData', null)
         //  .set('message', payload && payload.message || TRANSLATION.REGISTER_FAIL)?
-
     case ActionTypes.GET_CAR_SUCCESS:
       return state
         .set('car', payload)
-
     default:
       return state
-
   }
 }

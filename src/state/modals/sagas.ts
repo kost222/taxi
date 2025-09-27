@@ -5,14 +5,12 @@ import { EPointType, IAddressPoint, IPlaceResponse } from '../../types/types'
 import { TAction } from '../../types'
 import { call } from '../../tools/sagaUtils'
 import * as API from '../../API'
-
 export const saga = function* () {
   yield all([
     takeEvery(ActionTypes.SET_TAKE_PASSENGER_MODAL_FROM_REQUEST, setPointSaga(EPointType.From)),
     takeEvery(ActionTypes.SET_TAKE_PASSENGER_MODAL_TO_REQUEST, setPointSaga(EPointType.To)),
   ])
 }
-
 const setPointSaga = (type: EPointType) => function* (data: TAction) {
   const value: IAddressPoint = { ...data.payload }
   try {
@@ -33,9 +31,7 @@ const setPointSaga = (type: EPointType) => function* (data: TAction) {
       )
     }
   } catch (error) {
-    console.error(error)
   }
-
   yield put({
     type: type === EPointType.From ?
       ActionTypes.SET_TAKE_PASSENGER_MODAL_FROM :

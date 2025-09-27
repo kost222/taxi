@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Taxi App Test</title>
+</head>
+<body>
+    <h1>Testing Taxi App Configuration</h1>
+    <p>Check the browser console for data loading status.</p>
+
+    <script src="build/data.js"></script>
+    <script>
+        console.log('Testing data.js loading...');
+        if (window.data) {
+            console.log('✅ data.js loaded successfully!');
+            console.log('Language:', window.data.site_constants.the_language_of_the_service);
+            console.log('Currency:', window.data.site_constants.currency_of_the_service);
+            console.log('Default location:', window.data.site_constants.geo_default);
+            console.log('Total translations:', Object.keys(window.data.lang_vls).length);
+            document.write('<h2>✅ Configuration loaded successfully!</h2>');
+            document.write('<p>Language: English (ID: ' + window.data.site_constants.the_language_of_the_service.value + ')</p>');
+            document.write('<p>Currency: ' + window.data.site_constants.currency_of_the_service.value + '</p>');
+            document.write('<p>Total translations: ' + Object.keys(window.data.lang_vls).length + '</p>');
+        } else {
+            console.error('❌ data.js NOT loaded!');
+            document.write('<h2 style="color: red">❌ Configuration NOT loaded!</h2>');
+        }
+    </script>
+
+    <br><br>
+    <a href="build/index.html">Go to Taxi App Build →</a>
+</body>
+</html>

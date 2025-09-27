@@ -37,7 +37,7 @@ export default function Glide({
 }: IProps) {
 
   const glideId = useId()
-  const glide = useRef<VanillaGlide.Properties | null>(null)
+  const glide = useRef<any>(null)
   const position = useRef<number>(0)
 
   useLayoutEffect(() => {

@@ -24,3 +24,15 @@ export const clearOrders = (): TAction => {
 export const setOrderCount = (count: number): TAction => {
   return { type: ActionTypes.SET_ORDER_COUNT, payload: count }
 }
+
+export interface ReviewData {
+  orderId: string
+  rating: number
+  driverRating: number
+  carRating: number
+  comment: string
+}
+
+export const submitReview = (payload: ReviewData): TAction => {
+  return { type: ActionTypes.SUBMIT_REVIEW, payload }
+}
